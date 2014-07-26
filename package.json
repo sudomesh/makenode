@@ -1,0 +1,40 @@
+{
+  "name": "makenode",
+  "description": "Configures new sudo mesh nodes",
+  "version": "0.0.0",
+  "author": {
+    "name": "Marc Juul",
+    "email": "npm@juul.io",
+    "url": "http://juul.io"
+  },
+  "main": "./index",
+  "keywords": [
+    "sudomesh",
+    "mesh",
+    "node",
+    "deploy",
+    "configure"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sudomesh/nodeploy.git"
+  },
+  "dependencies": {
+    "ipk-builder": "0.0.1",
+    "optimist": "~0.6.1",
+    "ssh2": "~0.3.4",
+    "mkdirp": "~0.5.0",
+
+  },
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/sudomesh/nodeploy/issues"
+  },
+  "homepage": "https://github.com/sudomesh/nodeploy",
+  "maintainers": [
+    {
+      "name": "Marc Juul",
+      "email": "npm@juul.io"
+    }
+  ]
+}
