@@ -1,6 +1,6 @@
 
 
-module.exports = function(hwInfo) {
+module.exports = function(util, hwInfo, callback) {
 
   if(hwInfo.chipset != 'ar71xx') {
     return null;
@@ -11,7 +11,5 @@ module.exports = function(hwInfo) {
   };
 
         
-
-  return conf;
-    
+  callback(null, conf);
 };

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
 var path = require('path');
 var exec = require('child_process').exec;
-var mkdirp = require('mkdirp');
+var fs = require('fs.extra');
 var extend = require('node.extend');
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var IPKBuilder = require('ipk-builder');
+var util = require('./util.js');
 
 var debug = function(str) {
     if(argv.debug) {
@@ -33,7 +33,7 @@ var checkDependencies = function(callback) {
 
 var genSSHKeys = function(outputDir, callback) {
     console.log("Generating SSH keys");
-    mkdirp(outputDir, function(err) {
+    fs.mkdirp(outputDir, function(err) {
         if(err) return callback(err);
         
         exec("dropbearkey -t rsa -f dropbear_rsa_host_key -s 2048", {
@@ -50,33 +50,18 @@ var genSSHKeys = function(outputDir, callback) {
     });
 };
 
-var pathDepth = function(pathStr) {
-    pathStr = pathStr.replace(new RegExp('^'+path.sep), '');
-    return pathStr.split(path.delimiter).length;
-};
-
-var sortByPathDepth = function(paths) {
-    return paths.sort(function(a, b) {
-        if(pathDepth(a) > pathDepth(b)) {
-            return 1;
-        }
-        else if(pathDepth(a) < pathDepth(b)) {
-            return -1;
-        } else {
-            return 0;
-        }
-    });
-};
-
 // stage un-compiled templates
-var preStageTemplates = function(path, callback) {
+var copyTemplates = function(path, callback) {
+    // TODO remove hardcoded path
+    var stageDir = path.join(__dirname, 'templateStaging');
     fs.exists(path, function(exists) {
         if(!exists) return callback();
+        fs.mkdirp(stageDir, function(err) {
+            if(err) return callback(err);
 
-        // TODO implement template copying
-
-        console.log("adding templates from: " + path);
-        callback();
+            console.log("adding templates from: " + path);
+            fs.copyRecursive(path, stageDir, callback);
+        });
     });
 }
 
@@ -97,7 +82,6 @@ var preStageTemplates = function(path, callback) {
       defines the most common configuration.
      
     * A templates dir with three subdirs:
-
       * config_files
       * files
       * postscripts
@@ -107,113 +91,146 @@ var preStageTemplates = function(path, callback) {
       templates subdirs.
       
 */
-var combineConfigAndTemplates = function(dir, hwInfo, callback) {
+var stageTemplatesAndConfig = function(dir, hwInfo, callback) {
     dir = path.resolve(dir);
 
-    var config;
     var configPath = path.join(dir, 'config.js');
     fs.exists(configPath, function(exists) {
         if(exists) {
-           config = require(configPath)(hwInfo);
-            if(!config) {
-                console.log("ignoring dir based on config.js: " + dir);
-                callback();
-                return;
-            } else {
+            require(configPath)(util, hwInfo, function(err, config) {
+                if(err) return callback(err);
+                if(!config) {
+                    console.log("ignoring dir based on config.js: " + dir);
+                    callback();
+                    return;
+                }
                 console.log("adding config.js from: " + dir);
-            }
-        }
-
-        
-        preStageTemplates(path.join(dir, 'templates'), function() {
-            fs.readdir(dir, function(err, files) {
-                async.each(files, function(file, callback) {
-                    if(['config.js', 'templates'].indexOf(file) > -1) {
-                        return callback();
-                    }
-                    var subDir = path.join(dir, file);
-                    fs.stat(subDir, function(err, stats) {
-                        if(err) return console.log(err);
-                        if(!stats.isDirectory()) {
-                            return callback();
-                        } else {
-                            combineConfigAndTemplates(subDir, hwInfo, function(err, subConfig) {
-                                if(err) return callback(err);
-                                
-                                if(subConfig) {
-                                    config = extend(config, subConfig);
-                                }
-                                callback();                                
-                            });
-                        }
-                    });
-                }, function(err) {
-                    if(err) return callback(err);
-                    callback(null, config);
-                })
+                copyAndRecurse(config, dir, hwInfo, callback);
             });
+        } else {
+            copyAndRecurse({}, dir, hwInfo, callback);
+        }
+    });
+};
+
+var copyAndRecurse = function(config, dir, hwInfo, callback) {
+    copyTemplates(path.join(dir, 'templates'), function() {
+        fs.readdir(dir, function(err, files) {
+            async.eachSeries(files, function(file, callback) {
+                if(['config.js', 'templates'].indexOf(file) > -1) {
+                    return callback();
+                }
+                var subDir = path.join(dir, file);
+                fs.stat(subDir, function(err, stats) {
+                    if(err) return console.log(err);
+                    if(!stats.isDirectory()) {
+                        return callback();
+                    } else {
+                        stageTemplatesAndConfig(subDir, hwInfo, function(err, subConfig) {
+                            if(err) return callback(err);
+                            
+                            if(subConfig) {
+                                config = extend(config, subConfig);
+                            }
+                            callback();                                
+                        });
+                    }
+                });
+            }, function(err) {
+                if(err) return callback(err);
+                callback(null, config);
+            })
         });
     });
 };
 
 
-// interactively ask user for any missing/undefined config values
-var askUser = function(config, callback) {
-
-    // TODO implement
+// find all async parameters in a config object
+var findAsyncParams = function(config, keys) {
+    keys = keys || []
+    var asyncParams = [];
+    for(key in config) {
+        if(config[key] instanceof util.AsyncParameter) {
+            asyncParams.push({
+                param: config[key],
+                keys: keys.concat([key])
+            });
+        } else if((typeof(config[key]) == 'object') && !(config[key] instanceof Array)) {
+            asyncParams = asyncParams.concat(findAsyncParams(config[key], keys.concat([key])));
+        }
+    }
+    return asyncParams;
 };
 
-// generate passwords and assign unique IP's
-var generateAndAssign = function(config, callback) {
-
-    // TODO implement 
+// set a nested property of an object
+// keys is either in this format:
+//  ['key1', 'key2', 'key3']
+// or this format:
+//  'key1.key2.key3'
+var setNestedProp = function(obj, keys, value) {
+    if(typeof(keys) == 'string') {
+        keys = keys.split('.');
+    }
+    if(keys.length == 1) {
+        obj[keys[0]] = value;
+        return;
+    }
+    setNestedProp(obj[keys.shift()], keys, value);
 };
 
-// compile templates using config values
-var compileTemplates = function(config, stageDir, callback) {
+var resolveAsyncParameters = function(config, callback) {
+    var asyncParams = findAsyncParams(config);
+    async.eachSeries(asyncParams, function(param, callback) {
+        
+        param.param.run(function(err, value) {
+            if(err) return callback(err);
+            setNestedProp(config, param.keys, value);
+            callback();
+        });
 
-    // TODO implement
-    
-};
-
-var preStage = function(callback) {
-    combineConfigAndTemplates('configs', function(err, config) {
+    }, function(err) {
         if(err) return callback(err);
 
-        askUser(config, function(err, config) {
-            if(err) return callback(err);
-
-            generateAndAssign(config, function(err, config) {
-                if(err) return callback(err);
-                        
-                callback(null);
-                   
-            });
-        });
+        callback(null, config);
     });
 };
 
-var stage = function(stageDir, callback) {
+
+// compile templates using config values
+var compileTemplates = function(config, templateStageDir, stageDir, callback) {
+
+    // TODO implement
+
+    // for each template dir, make same dir in stageDir
+    // for each template file, compile with underscore and write to stageDir
+
+};
+
+var stage = function(templateStageDir, stageDir, callback) {
+    templateStageDir = path.resolve(templateStageDir);
     stageDir = path.resolve(stageDir);
     fs.stat(stageDir, function(err, stats) {
         if(!err) {
             return callback("Staging directory already exists.\nIt may be left over from a previous failed attempt?\nDelete the directory:\n  " + stageDir + "\nand try again.");
         }
-        mkdirp(stageDir, function(err) {
+        fs.mkdirp(stageDir, function(err) {
             if(err) return callback(err);        
             genSSHKeys(path.join(stageDir, 'data', 'etc', 'dropbear'), function(err) {
                 if(err) return callback(err);
 
                 // stage templates and config for "compilation"
-                preStage(function(err, config) {
+                stageTemplatesAndConfig(function(err, config) {
                     if(err) return callback(err);
                     
-                    compileTemplates(config, stageDir, function(err) {
+                    resolveAsyncParameters(config, function(err, config) {
                         if(err) return callback(err);
-
-                        callback(null);
-
-                    })
+                        
+                        compileTemplates(config, templateStageDir, stageDir, function(err) {
+                            if(err) return callback(err);
+                            
+                            callback(null);
+                        });
+                    });
                 });
             });
         });
@@ -365,7 +382,10 @@ var detectAndStage = function(conn, callback) {
     detectHardware(conn, function(err, hwInfo) {
         if(err) return callback(err);
 
-        stage(path.join(__dirname, 'staging'), function(err, stageDir) {
+        var templateStageDir = path.join(__dirname, 'templateStaging');
+        var stageDir = path.join(__dirname, 'staging');
+
+        stage(templateStageDir, stageDir function(err, stageDir) {
             if(err) return callback(err);
             callback(null, stageDir);
         });
