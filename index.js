@@ -7,6 +7,7 @@ var extend = require('node.extend');
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
+var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
 var util = require('./util.js');
 
@@ -51,16 +52,14 @@ var genSSHKeys = function(outputDir, callback) {
 };
 
 // stage un-compiled templates
-var copyTemplates = function(path, callback) {
-    // TODO remove hardcoded path
-    var stageDir = path.join(__dirname, 'templateStaging');
+var copyTemplates = function(path, templateStageDir, callback) {
     fs.exists(path, function(exists) {
         if(!exists) return callback();
-        fs.mkdirp(stageDir, function(err) {
+        fs.mkdirp(templateStageDir, function(err) {
             if(err) return callback(err);
 
             console.log("adding templates from: " + path);
-            fs.copyRecursive(path, stageDir, callback);
+            fs.copyRecursive(path, templateStageDir, callback);
         });
     });
 }
@@ -91,7 +90,7 @@ var copyTemplates = function(path, callback) {
       templates subdirs.
       
 */
-var stageTemplatesAndConfig = function(dir, hwInfo, callback) {
+var stageTemplatesAndConfig = function(dir, templateStageDir, hwInfo, callback) {
     dir = path.resolve(dir);
 
     var configPath = path.join(dir, 'config.js');
@@ -105,16 +104,16 @@ var stageTemplatesAndConfig = function(dir, hwInfo, callback) {
                     return;
                 }
                 console.log("adding config.js from: " + dir);
-                copyAndRecurse(config, dir, hwInfo, callback);
+                copyAndRecurse(config, dir, hwInfo, templateStageDir, callback);
             });
         } else {
-            copyAndRecurse({}, dir, hwInfo, callback);
+            copyAndRecurse({}, dir, hwInfo, templateStageDir, callback);
         }
     });
 };
 
-var copyAndRecurse = function(config, dir, hwInfo, callback) {
-    copyTemplates(path.join(dir, 'templates'), function() {
+var copyAndRecurse = function(config, dir, hwInfo, templateStageDir, callback) {
+    copyTemplates(path.join(dir, 'templates'), templateStageDir, function() {
         fs.readdir(dir, function(err, files) {
             async.eachSeries(files, function(file, callback) {
                 if(['config.js', 'templates'].indexOf(file) > -1) {
@@ -195,20 +194,45 @@ var resolveAsyncParameters = function(config, callback) {
     });
 };
 
+// compile a template+config into the final file
+// assumes destination directories already exist
+var compileTemplate = function(config, fromTemplate, toFile, callback) {
+    var fileData = fs.readFile(fromTemplate, function(err, data) {
+        if(err) return callback(err);
+       
+        var template = underscore.template(data);
+        var compiledData = template(config);
+        fs.writeFile(toFile, compiledData, callback);
+    });
+};
 
 // compile templates using config values
 var compileTemplates = function(config, templateStageDir, stageDir, callback) {
 
-    // TODO implement
+    var walker = fs.walk(templateStageDir);
+    
+    walker.on('node', function (root, stats, next) {
+        var filepath = path.join(root, stats.name);
+        if(stat.isDirectory()) {
+            fs.mkdirp(filepath, function(err) {
+                if(err) return callback(err);    
+                next();
+            });
+        } else {
+            var outFilePath = path.join(stageDir, path.relative(templateStageDir, filepath));
+            compileTemplate(config, filepath, outFilePath, function(err) {
+                if(err) return callback(err);
+                next();
+            });
+        }
+    });
 
-    // for each template dir, make same dir in stageDir
-    // for each template file, compile with underscore and write to stageDir
-
+    walker.on('end', function() {
+        callback();
+    });
 };
 
-var stage = function(templateStageDir, stageDir, callback) {
-    templateStageDir = path.resolve(templateStageDir);
-    stageDir = path.resolve(stageDir);
+var stage = function(templateStageDir, stageDir, hwInfo, callback) {
     fs.stat(stageDir, function(err, stats) {
         if(!err) {
             return callback("Staging directory already exists.\nIt may be left over from a previous failed attempt?\nDelete the directory:\n  " + stageDir + "\nand try again.");
@@ -219,7 +243,7 @@ var stage = function(templateStageDir, stageDir, callback) {
                 if(err) return callback(err);
 
                 // stage templates and config for "compilation"
-                stageTemplatesAndConfig(function(err, config) {
+                stageTemplatesAndConfig('configs', templateStageDir, hwInfo, function(err, config) {
                     if(err) return callback(err);
                     
                     resolveAsyncParameters(config, function(err, config) {
@@ -241,11 +265,11 @@ var getRadioInfo = function(conn, radios, callback, i) {
     i = i || 0;
 
     var cmd = 'uci get wireless.radio'+i+'.hwmode';
-    remoteCommand(conn, cmd, function(err, hwMode) {
+    remoteCommand(conn, cmd, function(err, hwMode, stderr) {
         if(err) return callback(err);
         radios[i].hwMode = '802.'+hwMode.replace(/\s+/, '');
         cmd = "cat /sys/class/ieee80211/"+radios[i].name+"/macaddress";
-        remoteCommand(conn, cmd, function(err, macAddr) {
+        remoteCommand(conn, cmd, function(err, macAddr, stderr) {
             if(err) return callback(err);
             radios[i].macAddr = macAddr.replace(/\s+/, '');
             if(radios[i+1]) {
@@ -345,13 +369,18 @@ var remoteCommand = function(conn, cmd, callback) {
         if(err) {
             return callback("Error running remote command: " + err);
         }
-        var allData = '';
+        var allStdout = '';
+        var allStderr = '';
         stream
-            .on('data', function(data) {
-                allData += data;
+            .on('data', function(stdout) {
+                allStdout += stdout;
             })
-            .on('end', function() {
-                callback(null, allData);
+            .stderr.on('data', function(stderr) {
+                allStderr += stderr;
+            })
+            .on('exit', function(retCode, signalName, didCoreDump, descript) {
+                // used to be .on('end')
+                callback(null, allStdout, allStderr, retCode, signalName, didCoreDump, descript);
             });
     });
 };
@@ -359,15 +388,15 @@ var remoteCommand = function(conn, cmd, callback) {
 
 var detectHardware = function(conn, callback) {
     console.log("Detecting node hardware capabilities");
-    remoteCommand(conn, 'cat /proc/cpuinfo', function(err, cpuInfo) {
+    remoteCommand(conn, 'cat /proc/cpuinfo', function(err, cpuInfo, stderr) {
         if(err) {
             return callback("Failed to detect cpu and router model: " + err);
         }
-        remoteCommand(conn, 'iw phy', function(err, wifiInfo) {
+        remoteCommand(conn, 'iw phy', function(err, wifiInfo, stderr) {
             if(err) {
                 return callback("Failed to get wifi info: " + err);
             }
-            getHWInfo(conn, cpuInfo, wifiInfo, function(err, hwInfo) {
+            getHWInfo(conn, cpuInfo, wifiInfo, function(err, hwInfo, stderr) {
                 if(err) {
                     return callback("Failed to detect radio capabilities: " +  err);
                 }
@@ -382,21 +411,53 @@ var detectAndStage = function(conn, callback) {
     detectHardware(conn, function(err, hwInfo) {
         if(err) return callback(err);
 
-        var templateStageDir = path.join(__dirname, 'templateStaging');
-        var stageDir = path.join(__dirname, 'staging');
+        var templateStageDir = path.resolve(settings.templateStageDir);
+        var stageDir = path.resolve(settings.stageDir);
 
-        stage(templateStageDir, stageDir function(err, stageDir) {
+        stage(templateStageDir, stageDir, hwInfo, function(err, stageDir) {
             if(err) return callback(err);
-            callback(null, stageDir);
+            callback(null, stageDir, hwInfo);
         });
     });
 };
 
 // build ipk, send to node and install
-var packageAndInstall = function(conn, stageDir, callback) {
+var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
+    var builder = IPKBuilder();
+    builder.setBasePath(path.join(stageDir, 'files'));
+    builder.addFiles(path.join(stageDir, 'files'));
+    builder.setBasePath(path.join(stageDir, 'config_files'));
+    builder.addConfFiles(path.join(stageDir, 'config_files'));
+    builder.addPostScripts(path.join(stageDir, 'postscripts'));
+    builder.setMeta({
+        package: "per-node-config",
+        version: "0.0.1",
+        maintainer: settings.ipkMaintainer,
+        architecture: "all",
+        description:  "Initial per-node configuration package for peoplesopen.net node."
+    });
+    var ipkFilename = 'per-node-config-'+hwInfo.mac_addr+'.ipk';
+    var ipkPath = path.join(settings.ipkDir, ipkFilename);
+    builder.build(ipkPath);
 
-    // TODO build IPK and send to node
+    var ipkRemotePath = path.join('/tmp', ipkFilename);
 
+    // copy ipk to server and install
+    conn.sftp(function(err, sftpConn) {
+        sftpConn.fastPut(ipkPath, ipkRemotePath, function(err) {
+            if(err) return callback(err);
+            remoteCommand(conn, "ipk install " + ipkRemotePath, function(err, stdout, stderr, retCode) {
+                if(retCode != 0) {
+                    console.log("IPK install error. Exit code: " + retCode);
+                    console.log("STDOUT: " + stdout);
+                    console.log("STDERR: " + stderr);
+                    callback("ipk install error");
+                } else {
+                    console.log("IPK installed successfully");
+                }
+            });
+        });
+    });
 };
 
 var configureNode = function(ip, port, password, callback) {
@@ -407,9 +468,9 @@ var configureNode = function(ip, port, password, callback) {
             callback(err);
         })
         .on('ready', function() {
-            detectAndStage(conn, function(err, stageDir) {
+            detectAndStage(conn, function(err, stageDir, hwInfo) {
                 if(err) return callback(err);
-                packageAndInstall(conn, stageDir, callback);
+                packageAndInstall(conn, stageDir, hwInfo, callback);
             });
         })
         .connect({
