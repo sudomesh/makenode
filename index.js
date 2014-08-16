@@ -2,6 +2,7 @@
 
 var path = require('path');
 var exec = require('child_process').exec;
+var util = require('util');
 var fs = require('fs.extra');
 var extend = require('node.extend');
 var async = require('async');
@@ -9,12 +10,33 @@ var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
-var util = require('./util.js');
+var u = require('./util.js');
+
+var settings = require('./settings.js');
 
 var debug = function(str) {
     if(argv.debug) {
+        process.stdout.write('[DEBUG] ');
         console.log(str);
     }
+}
+
+var usage = function() {
+    console.error('');
+    console.error("Usage: " + __filename);
+    console.error('');
+    console.error("Options:");
+    console.error("  --ip: Router IP address (default: "+settings.ip+")")
+    console.error("  --port: SSH port (default: "+settings.port+")")
+    console.error("  --password: SSH root password (default: "+settings.rootPassword+")")
+    console.error("  --detectOnly: Report hardware detection results and exit.")
+    console.error("  --detectOnlyJSON: Report hardware detection results in JSON format and exit.")
+    console.error("  --hwInfo <file>: Read hardware info results from file instead of detecting.")
+    console.error("  --offline: Prompt user for the parameters usually provided by the meshnode database.")
+    console.error("  --ipkOnly: Generate .ipk file but don't automatically upload or install to node.")
+    console.error('');
+    console.error("Defaults can be overwritten in the settings.js file.");
+    console.error('');
 }
 
 var checkDependencies = function(callback) {
@@ -96,7 +118,7 @@ var stageTemplatesAndConfig = function(dir, templateStageDir, hwInfo, callback) 
     var configPath = path.join(dir, 'config.js');
     fs.exists(configPath, function(exists) {
         if(exists) {
-            require(configPath)(util, hwInfo, function(err, config) {
+            require(configPath)(u, hwInfo, function(err, config) {
                 if(err) return callback(err);
                 if(!config) {
                     console.log("ignoring dir based on config.js: " + dir);
@@ -149,7 +171,7 @@ var findAsyncParams = function(config, keys) {
     keys = keys || []
     var asyncParams = [];
     for(key in config) {
-        if(config[key] instanceof util.AsyncParameter) {
+        if(config[key] instanceof u.AsyncParameter) {
             asyncParams.push({
                 param: config[key],
                 keys: keys.concat([key])
@@ -365,6 +387,7 @@ var getHWInfo = function(conn, cpuInfo, wifiInfo, callback) {
 };
 
 var remoteCommand = function(conn, cmd, callback) {
+    debug("Running remote command: " + cmd);
     conn.exec(cmd, function(err, stream) {
         if(err) {
             return callback("Error running remote command: " + err);
@@ -378,15 +401,27 @@ var remoteCommand = function(conn, cmd, callback) {
             .stderr.on('data', function(stderr) {
                 allStderr += stderr;
             })
-            .on('exit', function(retCode, signalName, didCoreDump, descript) {
-                // used to be .on('end')
-                callback(null, allStdout, allStderr, retCode, signalName, didCoreDump, descript);
+            .on('end', function() {
+                callback(null, allStdout, allStderr);
             });
     });
 };
 
 
 var detectHardware = function(conn, callback) {
+    if(argv.hwInfo) {
+        console.log("Reading node hardware capabilities from file");
+        fs.readFile(argv.hwInfo, function(err, data) {
+            if(err) return callback(err);
+            try {
+                var hwInfo = JSON.parse(data);
+                callback(null, hwInfo);
+            } catch(e) {
+                callback(e.message);
+            }
+        });
+        return;
+    }
     console.log("Detecting node hardware capabilities");
     remoteCommand(conn, 'cat /proc/cpuinfo', function(err, cpuInfo, stderr) {
         if(err) {
@@ -410,6 +445,16 @@ var detectHardware = function(conn, callback) {
 var detectAndStage = function(conn, callback) {
     detectHardware(conn, function(err, hwInfo) {
         if(err) return callback(err);
+
+        if(argv.detectOnly) {
+            console.log(util.inspect(hwInfo, {depth: null, colors: true}));
+            process.exit();
+        }
+
+        if(argv.detectOnlyJSON) {
+            console.log(JSON.stringify(hwInfo));
+            process.exit();
+        }
 
         var templateStageDir = path.resolve(settings.templateStageDir);
         var stageDir = path.resolve(settings.stageDir);
@@ -446,9 +491,9 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
     conn.sftp(function(err, sftpConn) {
         sftpConn.fastPut(ipkPath, ipkRemotePath, function(err) {
             if(err) return callback(err);
-            remoteCommand(conn, "ipk install " + ipkRemotePath, function(err, stdout, stderr, retCode) {
+            remoteCommand(conn, "ipk install " + ipkRemotePath, function(err, stdout, stderr) {
                 if(retCode != 0) {
-                    console.log("IPK install error. Exit code: " + retCode);
+                    console.log("IPK install error");
                     console.log("STDOUT: " + stdout);
                     console.log("STDERR: " + stderr);
                     callback("ipk install error");
@@ -461,7 +506,7 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
 };
 
 var configureNode = function(ip, port, password, callback) {
-    console.log("Connecting to node");
+    console.log("Connecting to node at " + ip + " using ssh on port " + port);
     var conn = new ssh2();
     conn
         .on('error', function(err) {
@@ -481,6 +526,11 @@ var configureNode = function(ip, port, password, callback) {
         });
 };
 
+if(argv.offline || argv.ipkOnly) {
+    console.error("Not implemented");
+    process.exit(1);
+}
+
 
 checkDependencies(function(err) {
     if(err) {
@@ -488,9 +538,9 @@ checkDependencies(function(err) {
         return;
     }
 
-    var ip = argv.ip || '192.168.1.1';
-    var port = argv.port || 22;
-    var password = argv.password || 'meshtheplanet';
+    var ip = argv.ip || settings.ip || '192.168.1.1';
+    var port = argv.port || settings.port || 22;
+    var password = argv.password || settings.rootPassword || 'meshtheplanet';
 
     configureNode(ip, port, password, function(err) {
         if(err) {
@@ -501,3 +551,9 @@ checkDependencies(function(err) {
     });
     
 });
+
+
+if(argv.help) {
+    usage();
+    process.exit();
+}

@@ -1,6 +1,13 @@
 
 module.exports = {
 
+    // router IP
+    ip: '192.168.1.1',
+    port: '22',
+
+    // The root password for the newly configured routers
+    rootPassword: 'meshtheplanet',
+
     // settings for connection to the meshnode-database
     // https://github.com/sudomesh/meshnode-database
     nodeDB: {
