@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var util = require('../util.js');
+var u = require('../u.js');
 
-util.createNodeInDB(function(err, node) {
+u.createNodeInDB(function(err, node) {
     if(err) {
         console.log(err);
     }
@@ -10,5 +10,3 @@ util.createNodeInDB(function(err, node) {
     console.log(node);
 });
 
-
-console.log(util.generatePassword());

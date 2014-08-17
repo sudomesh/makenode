@@ -151,7 +151,7 @@ var copyAndRecurse = function(config, dir, hwInfo, callback) {
                             if(err) return callback(err);
                             
                             if(subConfig) {
-                                config = extend(config, subConfig);
+                                extend(config, subConfig);
                             }
                             callback();                                
                         });
@@ -482,7 +482,7 @@ var detectAndStage = function(conn, callback) {
 
 // build ipk, send to node and install
 var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
-    var builder = IPKBuilder();
+    var builder = IPKBuilder({ignoreMissing: true});
     builder.setBasePath(path.join(stageDir, 'files'));
     builder.addFiles(path.join(stageDir, 'files'));
     builder.setBasePath(path.join(stageDir, 'config_files'));
@@ -495,17 +495,33 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
         architecture: "all",
         description:  "Initial per-node configuration package for peoplesopen.net node."
     });
-    var ipkFilename = 'per-node-config-'+hwInfo.mac_addr+'.ipk';
+
+    var ipkFilename = 'per-node-config-'+u.macAddr(hwInfo).replace(/:/g, '-')+'.ipk';
     var ipkPath = path.join(settings.ipkDir, ipkFilename);
-    builder.build(ipkPath);
 
-    console.log("Build IPK " + ipkPath);
-    if(settings.ipkOnly) {
-        return callback(null);
-    }
+    fs.mkdirp(path.dirname(ipkPath), function(err) {
+        if(err) return callback(err);
 
+        console.log("Building IPK " + ipkPath);
+
+        builder.build(ipkPath, function(err, outPath) {
+            if(err) return callback(err);
+
+            console.log("IPK built");
+            if(settings.ipkOnly) {
+                return callback(null);
+            }
+            
+            installIpk(conn, ipkPath, callback);
+        });
+    });
+};
+
+
+var installIpk = function(conn, ipkPath, callback) {
+    var ipkFilename = path.dirname(ipkPath);
     var ipkRemotePath = path.join('/tmp', ipkFilename);
-
+    
     // copy ipk to server and install
     conn.sftp(function(err, sftpConn) {
         sftpConn.fastPut(ipkPath, ipkRemotePath, function(err) {
@@ -518,10 +534,12 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
                     callback("ipk install error");
                 } else {
                     console.log("IPK installed successfully");
+                    callback(null);
                 }
             });
         });
     });
+
 };
 
 var configureNode = function(ip, port, password, callback) {
@@ -534,7 +552,7 @@ var configureNode = function(ip, port, password, callback) {
         .on('ready', function() {
             detectAndStage(conn, function(err, stageDir, hwInfo) {
                 if(err) return callback(err);
-                packageAndInstall(conn, stageDir, hwInfo, callback);
+                packageAndInstall(conn, settings.stageDir, hwInfo, callback);
             });
         })
         .connect({
