@@ -27,7 +27,8 @@
     "fs.extra": "~1.2.1",
     "underscore": "~1.6.0",
     "password-generator": "~0.2.2",
-    "request": "~2.40.0"
+    "request": "~2.40.0",
+    "crypt3": "~0.1.5",
   },
   "license": "GPLv3",
   "bugs": {

@@ -5,6 +5,10 @@ module.exports = {
     ip: '192.168.1.1',
     port: '22',
 
+
+    // ignore emacs-related files when compiling templates
+    ignoreTemplates: [/.*~$/, /^#.*#$/],
+
     // The root password for the newly configured routers
     rootPassword: 'meshtheplanet',
 

@@ -1,8 +1,8 @@
 
 
-module.exports = function(util, hwInfo, callback) {
+module.exports = function(u, hwInfo, callback) {
 
-  if(u.chipsetType(hwInfo) != 'ar71xx') {
+  if(u.chipsetType(hwInfo) != 'atheros') {
     return callback(null, null);
   }
 

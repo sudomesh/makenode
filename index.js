@@ -10,7 +10,7 @@ var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
-var u = require('./util.js');
+var u = require('./u.js');
 
 var settings = require('./settings.js');
 
@@ -30,7 +30,7 @@ var usage = function() {
     console.error("  --port: SSH port (default: "+settings.port+")")
     console.error("  --password: SSH root password (default: "+settings.rootPassword+")")
     console.error("  --detectOnly: Report hardware detection results and exit.")
-    console.error("  --detectOnlyJSON: Report hardware detection results in JSON format and exit.")
+    console.error("  --detectOnlyJSON <file>: Write hardware detection results in JSON format to file and exit.")
     console.error("  --hwInfo <file>: Read hardware info results from file instead of detecting.")
     console.error("  --offline: Prompt user for the parameters usually provided by the meshnode database.")
     console.error("  --ipkOnly: Generate .ipk file but don't automatically upload or install to node.")
@@ -235,6 +235,13 @@ var compileTemplates = function(config, templateStageDir, stageDir, callback) {
     
     walker.on('node', function (root, stats, next) {
         var filepath = path.join(root, stats.name);
+        var i; // check if file should be ignored
+        for(i=0; i < settings.ignoreTemplates; i++) {
+            if(stats.name.match(settings.ignoreTemplates[i])) {
+                next();
+                return;
+            }
+        }
         if(stat.isDirectory()) {
             fs.mkdirp(filepath, function(err) {
                 if(err) return callback(err);    
@@ -452,8 +459,11 @@ var detectAndStage = function(conn, callback) {
         }
 
         if(argv.detectOnlyJSON) {
-            console.log(JSON.stringify(hwInfo));
-            process.exit();
+            fs.writeFile(argv.detectOnlyJSON, JSON.stringify(hwInfo), function(err) {
+                if(err) return callback(err);
+                process.exit(); 
+            });
+            return;
         }
 
         var templateStageDir = path.resolve(settings.templateStageDir);
@@ -484,6 +494,11 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
     var ipkFilename = 'per-node-config-'+hwInfo.mac_addr+'.ipk';
     var ipkPath = path.join(settings.ipkDir, ipkFilename);
     builder.build(ipkPath);
+
+    console.log("Build IPK " + ipkPath);
+    if(settings.ipkOnly) {
+        return callback(null);
+    }
 
     var ipkRemotePath = path.join('/tmp', ipkFilename);
 
@@ -526,7 +541,7 @@ var configureNode = function(ip, port, password, callback) {
         });
 };
 
-if(argv.offline || argv.ipkOnly) {
+if(argv.offline) {
     console.error("Not implemented");
     process.exit(1);
 }
@@ -547,7 +562,7 @@ checkDependencies(function(err) {
             console.error("Error: " + err);
             return;
         }
-        console.log("Node successfully configured!");
+        console.log("Completed.");
     });
     
 });
