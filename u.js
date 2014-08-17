@@ -1,4 +1,6 @@
 
+var fs = require('fs.extra');
+var path = require('path');
 var readline = require('readline');
 var request = require('request');
 var crypt3 = require('crypt3');
@@ -14,7 +16,8 @@ module.exports = u = {
         opts = opts || {};
         
         return new this.AsyncParameter(function(callback) {
-            fs.readFile(file, function(err, data) {
+            file = path.join(__dirname, 'configs', file);
+            fs.readFile(file, {encoding: 'utf8'}, function(err, data) {
                 if(err) return callback(err);
                 callback(null, data);
             });
@@ -52,7 +55,7 @@ module.exports = u = {
                 input: process.stdin,
                 output: process.stdout
             });
-            rl.question(prompt, function(answer) {
+            rl.question(prompt+': ', function(answer) {
                 rl.close();
                 if(!answer) {
                     if(opts.noAnswer) {

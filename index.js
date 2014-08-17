@@ -74,14 +74,14 @@ var genSSHKeys = function(outputDir, callback) {
 };
 
 // stage un-compiled templates
-var copyTemplates = function(path, templateStageDir, callback) {
+var copyTemplates = function(path, callback) {
     fs.exists(path, function(exists) {
         if(!exists) return callback();
-        fs.mkdirp(templateStageDir, function(err) {
+        fs.mkdirp(settings.templateStageDir, function(err) {
             if(err) return callback(err);
 
             console.log("adding templates from: " + path);
-            fs.copyRecursive(path, templateStageDir, callback);
+            fs.copyRecursive(path, settings.templateStageDir, callback);
         });
     });
 }
@@ -112,7 +112,7 @@ var copyTemplates = function(path, templateStageDir, callback) {
       templates subdirs.
       
 */
-var stageTemplatesAndConfig = function(dir, templateStageDir, hwInfo, callback) {
+var stageTemplatesAndConfig = function(dir, hwInfo, callback) {
     dir = path.resolve(dir);
 
     var configPath = path.join(dir, 'config.js');
@@ -126,16 +126,16 @@ var stageTemplatesAndConfig = function(dir, templateStageDir, hwInfo, callback) 
                     return;
                 }
                 console.log("adding config.js from: " + dir);
-                copyAndRecurse(config, dir, hwInfo, templateStageDir, callback);
+                copyAndRecurse(config, dir, hwInfo, callback);
             });
         } else {
-            copyAndRecurse({}, dir, hwInfo, templateStageDir, callback);
+            copyAndRecurse({}, dir, hwInfo, callback);
         }
     });
 };
 
-var copyAndRecurse = function(config, dir, hwInfo, templateStageDir, callback) {
-    copyTemplates(path.join(dir, 'templates'), templateStageDir, function() {
+var copyAndRecurse = function(config, dir, hwInfo, callback) {
+    copyTemplates(path.join(dir, 'templates'), function() {
         fs.readdir(dir, function(err, files) {
             async.eachSeries(files, function(file, callback) {
                 if(['config.js', 'templates'].indexOf(file) > -1) {
@@ -219,19 +219,23 @@ var resolveAsyncParameters = function(config, callback) {
 // compile a template+config into the final file
 // assumes destination directories already exist
 var compileTemplate = function(config, fromTemplate, toFile, callback) {
-    var fileData = fs.readFile(fromTemplate, function(err, data) {
+    var fileData = fs.readFile(fromTemplate, {encoding: 'utf8'}, function(err, data) {
         if(err) return callback(err);
        
         var template = underscore.template(data);
         var compiledData = template(config);
-        fs.writeFile(toFile, compiledData, callback);
+        fs.mkdirp(path.dirname(toFile), function(err) {
+            if(err) return callback("Could not create staging directory for compiled template");
+            fs.writeFile(toFile, compiledData, callback);
+
+        });
     });
 };
 
 // compile templates using config values
-var compileTemplates = function(config, templateStageDir, stageDir, callback) {
+var compileTemplates = function(config, stageDir, callback) {
 
-    var walker = fs.walk(templateStageDir);
+    var walker = fs.walk(settings.templateStageDir);
     
     walker.on('node', function (root, stats, next) {
         var filepath = path.join(root, stats.name);
@@ -242,13 +246,13 @@ var compileTemplates = function(config, templateStageDir, stageDir, callback) {
                 return;
             }
         }
-        if(stat.isDirectory()) {
+        if(stats.isDirectory()) {
             fs.mkdirp(filepath, function(err) {
                 if(err) return callback(err);    
                 next();
             });
         } else {
-            var outFilePath = path.join(stageDir, path.relative(templateStageDir, filepath));
+            var outFilePath = path.join(stageDir, path.relative(settings.templateStageDir, filepath));
             compileTemplate(config, filepath, outFilePath, function(err) {
                 if(err) return callback(err);
                 next();
@@ -261,24 +265,24 @@ var compileTemplates = function(config, templateStageDir, stageDir, callback) {
     });
 };
 
-var stage = function(templateStageDir, stageDir, hwInfo, callback) {
+var stage = function(stageDir, hwInfo, callback) {
     fs.stat(stageDir, function(err, stats) {
         if(!err) {
             return callback("Staging directory already exists.\nIt may be left over from a previous failed attempt?\nDelete the directory:\n  " + stageDir + "\nand try again.");
         }
         fs.mkdirp(stageDir, function(err) {
             if(err) return callback(err);        
-            genSSHKeys(path.join(stageDir, 'data', 'etc', 'dropbear'), function(err) {
+            genSSHKeys(path.join(stageDir, 'files', 'etc', 'dropbear'), function(err) {
                 if(err) return callback(err);
 
                 // stage templates and config for "compilation"
-                stageTemplatesAndConfig('configs', templateStageDir, hwInfo, function(err, config) {
+                stageTemplatesAndConfig('configs', hwInfo, function(err, config) {
                     if(err) return callback(err);
                     
                     resolveAsyncParameters(config, function(err, config) {
                         if(err) return callback(err);
                         
-                        compileTemplates(config, templateStageDir, stageDir, function(err) {
+                        compileTemplates(config, stageDir, function(err) {
                             if(err) return callback(err);
                             
                             callback(null);
@@ -469,7 +473,7 @@ var detectAndStage = function(conn, callback) {
         var templateStageDir = path.resolve(settings.templateStageDir);
         var stageDir = path.resolve(settings.stageDir);
 
-        stage(templateStageDir, stageDir, hwInfo, function(err, stageDir) {
+        stage(stageDir, hwInfo, function(err, stageDir) {
             if(err) return callback(err);
             callback(null, stageDir, hwInfo);
         });
