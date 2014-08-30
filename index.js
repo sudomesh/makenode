@@ -10,6 +10,7 @@ var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
+var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
 var settings = require('./settings.js');
@@ -26,6 +27,7 @@ var usage = function() {
     console.error("Usage: " + __filename);
     console.error('');
     console.error("Options:");
+    console.error("  --flash: Flash before configuring. See ubi-flasher for relevant command line arguments.")
     console.error("  --ip: Router IP address (default: "+settings.ip+")")
     console.error("  --port: SSH port (default: "+settings.port+")")
     console.error("  --password: SSH root password (default: "+settings.rootPassword+")")
@@ -568,29 +570,38 @@ if(argv.offline) {
     process.exit(1);
 }
 
+if(argv.help) {
+    usage();
+    process.exit();
+}
 
-checkDependencies(function(err) {
-    if(err) {
-        console.error("Error: " + err);
-        return;
-    }
+function configure() {
 
-    var ip = argv.ip || settings.ip || '192.168.1.1';
-    var port = argv.port || settings.port || 22;
-    var password = argv.password || settings.rootPassword || 'meshtheplanet';
-
-    configureNode(ip, port, password, function(err) {
+    checkDependencies(function(err) {
         if(err) {
             console.error("Error: " + err);
             return;
         }
-        console.log("Completed.");
+        
+        var ip = argv.ip || settings.ip || '192.168.1.1';
+        var port = argv.port || settings.port || 22;
+        var password = argv.password || settings.rootPassword || 'meshtheplanet';
+        
+        configureNode(ip, port, password, function(err) {
+            if(err) {
+                console.error("Error: " + err);
+                return;
+            }
+            console.log("Completed.");
+        });    
     });
-    
-});
+}
 
-
-if(argv.help) {
-    usage();
-    process.exit();
+if(argv.flash) {
+    var flasher = new Ubiflasher();
+    flasher.flash(argv, function() {
+        configure();
+    });
+} else {
+    configure();
 }
