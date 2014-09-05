@@ -88,13 +88,14 @@ module.exports = u = {
         var i, j, radio, channel, hz;
         for(i=0; i < hwInfo.radios.length; i++) {
             radio = hwInfo.radios[i];
-            for(j=0; j < radio.channels; j++) {
+            for(j=0; j < radio.channels.length; j++) {
                 channel = radio.channels[j];
                 if(!channel.frequency) continue;
                 mhz = parseInt(channel.frequency.replace(/[^\d]+/g, ''));
                 if(mhz > maxMhz) {
-                    mazMhz = mhz;
-                } else if(mhz < minMhz) {
+                    maxMhz = mhz;
+                }
+                if(mhz < minMhz) {
                     minMhz = mhz;
                 }
             }

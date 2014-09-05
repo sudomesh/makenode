@@ -17,11 +17,11 @@ module.exports = function(u, hwInfo, callback) {
     };
 
     u.createNodeInDB(function(err, nodeInfo) {
-        if(err) return callback(err);
-        
-        extend(conf, nodeInfo);
+        if(err) return callback("Error creating node in remote node database: " + err);
 
+        extend(conf, nodeInfo);
+        callback(null, conf);
     });
         
-    callback(null, conf);
+
 };

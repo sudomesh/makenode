@@ -2,7 +2,7 @@
 module.exports = {
 
     // router IP
-    ip: '192.168.1.1',
+    ip: '192.168.13.37',
     port: '22',
 
 

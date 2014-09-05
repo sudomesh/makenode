@@ -29,7 +29,7 @@
     "password-generator": "~0.2.2",
     "request": "~2.40.0",
     "crypt3": "~0.1.5",
-    "ubi-flasher": "~0.4.0"
+    "ubi-flasher": "0.4.1"
   },
   "license": "GPLv3",
   "bugs": {

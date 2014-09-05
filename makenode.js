@@ -27,7 +27,7 @@ var usage = function() {
     console.error("Usage: " + __filename);
     console.error('');
     console.error("Options:");
-    console.error("  --flash: Flash before configuring. See ubi-flasher for relevant command line arguments.")
+    console.error("  --firmware <file>: Flash firmware before configuring. See ubi-flasher for relevant command line arguments.")
     console.error("  --ip: Router IP address (default: "+settings.ip+")")
     console.error("  --port: SSH port (default: "+settings.port+")")
     console.error("  --password: SSH root password (default: "+settings.rootPassword+")")
@@ -268,22 +268,22 @@ var compileTemplates = function(config, stageDir, callback) {
 };
 
 var stage = function(stageDir, hwInfo, callback) {
-    fs.stat(stageDir, function(err, stats) {
-        if(!err) {
-            return callback("Staging directory already exists.\nIt may be left over from a previous failed attempt?\nDelete the directory:\n  " + stageDir + "\nand try again.");
-        }
+    fs.remove(stageDir, function(err, stats) {
         fs.mkdirp(stageDir, function(err) {
             if(err) return callback(err);        
             genSSHKeys(path.join(stageDir, 'files', 'etc', 'dropbear'), function(err) {
                 if(err) return callback(err);
 
+                console.log("stage");
                 // stage templates and config for "compilation"
                 stageTemplatesAndConfig('configs', hwInfo, function(err, config) {
                     if(err) return callback(err);
                     
+                    console.log("resolve");
                     resolveAsyncParameters(config, function(err, config) {
                         if(err) return callback(err);
                         
+                        console.log("compile");
                         compileTemplates(config, stageDir, function(err) {
                             if(err) return callback(err);
                             
@@ -520,27 +520,45 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
 };
 
 
+var fakeSCP = function(conn, localPath, remotePath, callback) {
+    console.log("writing to " + remotePath);
+    var localStream = fs.createReadStream(localPath);
+    localStream.on('error', callback);
+    conn.exec('/bin/cat > '+remotePath, function(err, remoteStream) {
+        if(err) return callback("Fake SCP failed: " + err);
+        localStream.on('end', function() {
+            remoteStream.end();
+            callback();
+        });
+        localStream.pipe(remoteStream);
+    });
+};
+
+
 var installIpk = function(conn, ipkPath, callback) {
-    var ipkFilename = path.dirname(ipkPath);
+    var ipkFilename = path.basename(ipkPath);
     var ipkRemotePath = path.join('/tmp', ipkFilename);
-    
-    // copy ipk to server and install
-    conn.sftp(function(err, sftpConn) {
-        sftpConn.fastPut(ipkPath, ipkRemotePath, function(err) {
+
+
+        console.log("Uploading IPK");
+        fakeSCP(conn, ipkPath, ipkRemotePath, function(err) {
             if(err) return callback(err);
-            remoteCommand(conn, "ipk install " + ipkRemotePath, function(err, stdout, stderr) {
-                if(retCode != 0) {
+            console.log("Installing IPK");
+            remoteCommand(conn, "/bin/opkg --force-overwrite install " + ipkRemotePath, function(err, stdout, stderr) {
+                if(err || stderr) {
                     console.log("IPK install error");
                     console.log("STDOUT: " + stdout);
                     console.log("STDERR: " + stderr);
                     callback("ipk install error");
                 } else {
                     console.log("IPK installed successfully");
-                    callback(null);
+                    remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
+                        callback(null);
+                    });
                 }
             });
         });
-    });
+
 
 };
 
@@ -570,7 +588,7 @@ if(argv.offline) {
     process.exit(1);
 }
 
-if(argv.help) {
+if(argv.help || argv.h) {
     usage();
     process.exit();
 }
@@ -597,8 +615,10 @@ function configure() {
     });
 }
 
-if(argv.flash) {
-    var flasher = new Ubiflasher();
+if(argv.firmware) {
+    console.error("Not yet fully implemented");
+    process.exit(0);
+    var flasher = new UbiFlasher();
     flasher.flash(argv, function() {
         configure();
     });
