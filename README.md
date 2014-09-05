@@ -9,7 +9,7 @@ makenode combines a set of configuration file templates with information like ge
 # Usage
 
 ```
-Usage: /home/juul/projects/meshing/sudomesh/makenode/index.js
+Usage: ./makenode.js
 
 Options:
   --firmware: Flash firmware before configuring. See ubi-flasher for relevant command line arguments.

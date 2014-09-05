@@ -221,15 +221,20 @@ var resolveAsyncParameters = function(config, callback) {
 // compile a template+config into the final file
 // assumes destination directories already exist
 var compileTemplate = function(config, fromTemplate, toFile, callback) {
-    var fileData = fs.readFile(fromTemplate, {encoding: 'utf8'}, function(err, data) {
+    fs.stat(fromTemplate, function(err, stats) {
         if(err) return callback(err);
-       
-        var template = underscore.template(data);
-        var compiledData = template(config);
-        fs.mkdirp(path.dirname(toFile), function(err) {
-            if(err) return callback("Could not create staging directory for compiled template");
-            fs.writeFile(toFile, compiledData, callback);
-
+        var fileData = fs.readFile(fromTemplate, {encoding: 'utf8'}, function(err, data) {
+            if(err) return callback(err);
+            
+            var template = underscore.template(data);
+            var compiledData = template(config);
+            fs.mkdirp(path.dirname(toFile), function(err) {
+                if(err) return callback("Could not create staging directory for compiled template");
+                fs.writeFile(toFile, compiledData, {
+                    mode: stats.mode
+                }. callback);
+                
+            });
         });
     });
 };
@@ -553,6 +558,7 @@ var installIpk = function(conn, ipkPath, callback) {
                 } else {
                     console.log("IPK installed successfully");
                     remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
+                        console.log("Rebooting");
                         callback(null);
                     });
                 }
@@ -572,7 +578,11 @@ var configureNode = function(ip, port, password, callback) {
         .on('ready', function() {
             detectAndStage(conn, function(err, stageDir, hwInfo) {
                 if(err) return callback(err);
-                packageAndInstall(conn, settings.stageDir, hwInfo, callback);
+                packageAndInstall(conn, settings.stageDir, hwInfo, function(err) {
+                    if(err) return callback("package and install failed: " + err);
+                    conn.end();
+                    callback();
+                });
             });
         })
         .connect({
