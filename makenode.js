@@ -272,10 +272,27 @@ var compileTemplates = function(config, stageDir, callback) {
     });
 };
 
+var createStageDirStructure = function(stageDir, callback) {
+    fs.mkdirp(stageDir, function(err) {
+        if(err) return callback(err);  
+        // TODO async'ify
+        fs.mkdirp(path.join(stageDir, 'files'), function(err) {   
+            if(err) return callback(err);  
+            fs.mkdirp(path.join(stageDir, 'config_files'), function(err) {   
+                if(err) return callback(err);  
+                fs.mkdirp(path.join(stageDir, 'postscripts'), function(err) {   
+                    callback(null);
+                });
+            });
+        });
+    });
+};
+
 var stage = function(stageDir, hwInfo, callback) {
     fs.remove(stageDir, function(err, stats) {
-        fs.mkdirp(stageDir, function(err) {
-            if(err) return callback(err);        
+        createStageDirStructure(stageDir, function(err) {
+            if(err) return callback(err);  
+
             genSSHKeys(path.join(stageDir, 'files', 'etc', 'dropbear'), function(err) {
                 if(err) return callback(err);
 
