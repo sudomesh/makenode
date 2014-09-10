@@ -221,18 +221,23 @@ var resolveAsyncParameters = function(config, callback) {
 // compile a template+config into the final file
 // assumes destination directories already exist
 var compileTemplate = function(config, fromTemplate, toFile, callback) {
+    console.log("got here 1");
     fs.stat(fromTemplate, function(err, stats) {
+        console.log("got here 2");
         if(err) return callback(err);
         var fileData = fs.readFile(fromTemplate, {encoding: 'utf8'}, function(err, data) {
             if(err) return callback(err);
-            
+       
+            console.log("got here 3");     
             var template = underscore.template(data);
             var compiledData = template(config);
+            console.log("got here 4");
             fs.mkdirp(path.dirname(toFile), function(err) {
                 if(err) return callback("Could not create staging directory for compiled template");
+                console.log("got here 5");
                 fs.writeFile(toFile, compiledData, {
                     mode: stats.mode
-                }. callback);
+                }, callback);
                 
             });
         });
@@ -260,8 +265,11 @@ var compileTemplates = function(config, stageDir, callback) {
             });
         } else {
             var outFilePath = path.join(stageDir, path.relative(settings.templateStageDir, filepath));
+            console.log("out: " + outFilePath);
             compileTemplate(config, filepath, outFilePath, function(err) {
+                console.log("got here 6");
                 if(err) return callback(err);
+                console.log("got here 7");
                 next();
             });
         }
@@ -499,6 +507,7 @@ var detectAndStage = function(conn, callback) {
 
         stage(stageDir, hwInfo, function(err, stageDir) {
             if(err) return callback(err);
+            console.log("finished staging");
             callback(null, stageDir, hwInfo);
         });
     });
@@ -509,8 +518,9 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
     var builder = IPKBuilder({ignoreMissing: true});
     builder.setBasePath(path.join(stageDir, 'files'));
     builder.addFiles(path.join(stageDir, 'files'));
-    builder.setBasePath(path.join(stageDir, 'config_files'));
-    builder.addConfFiles(path.join(stageDir, 'config_files'));
+    // ToDo ipk-builder does not support adding a directory of config files
+//    builder.setBasePath(path.join(stageDir, 'config_files'));
+//    builder.addConfFiles(path.join(stageDir, 'config_files'));
     builder.addPostScripts(path.join(stageDir, 'postscripts'));
     builder.setMeta({
         package: "per-node-config",
