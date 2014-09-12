@@ -17,7 +17,7 @@ config dnsmasq
        list interface 'priv0'
        config dhcp meshpool
        option interface 'openmesh'
-       option start <mesh_dhcp_range_start>
+       option start <%= mesh_dhcp_range_start %>
        option limit 203
        option leasetime 5m
        list dhcp_option '1,255.0.0.0' # subnet mask
