@@ -12,11 +12,19 @@ config interface 'lan'
        option proto 'batadv'
        option mesh 'bat0'
 
+config interface 'open'
+       option ifname 'open0'
+       option mtu 1400
+       
+config interface 'batman'
+       option ifname 'bat0'
+       option mtu 1400
+
 config interface 'openmesh'
        option type 'bridge'
        option ifname 'open0 bat0'
        option proto 'static'
-       option mtu '1400'
+       option mtu 1400
        option ipaddr '<%= mesh_addr_ipv4 %>'
        option netmask '255.0.0.0'
 
