@@ -5,6 +5,7 @@ var exec = require('child_process').exec;
 var util = require('util');
 var fs = require('fs.extra');
 var extend = require('node.extend');
+var ncp = require('ncp');
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
@@ -83,7 +84,7 @@ var copyTemplates = function(path, callback) {
             if(err) return callback(err);
 
             console.log("adding templates from: " + path);
-            fs.copyRecursive(path, settings.templateStageDir, callback);
+            ncp(path, settings.templateStageDir, callback);
         });
     });
 }
