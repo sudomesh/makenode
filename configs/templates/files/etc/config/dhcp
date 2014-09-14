@@ -15,7 +15,8 @@ config dnsmasq
        option resolvfile '/tmp/resolv.conf.auto'
        list interface 'br-openmesh'
        list interface 'priv0'
-       config dhcp meshpool
+
+config dhcp meshpool
        option interface 'openmesh'
        option start 50
        option limit 203
@@ -32,4 +33,3 @@ config dhcp privatepool
        option leasetime 30m
        list dhcp_option '1,255.255.255.0' # subnet mask
        list dhcp_option '3,172.30.0.1' # gateway
-
