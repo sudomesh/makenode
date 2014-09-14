@@ -30,15 +30,15 @@ Defaults and other settings can be overwritten in the settings.js file.
 
 makenode gathers data in the following ways
 
-*Hardware detection by running commands on the node
-*User input 
-*Requesting unique IP assignment from a remote meshnode database
-*Key generation (for SSH host keys)
-*Password generation (human readable or XKCD style)
+* Hardware detection by running commands on the node
+* User input
+* Requesting unique IP assignment from a remote meshnode database
+* Key generation (for SSH host keys)
+* Password generation (human readable or XKCD style)
 
 The data is gathered and combined with templates by recursively walking through the configs/ dir and subdirs. For each dir the following occurs:
 
-If present, the config.js file is imported and the function it exports is run. That function will receive the hardware info gathered during hardware detection (the hwInfo object) and can run information gathering functions (or schedule async information gathering to be run later) and return a configuration object with values to be combined with template files. If a templates/ directory exists in the same subdir as a config.js file, and the config.js file does not return null, then those templates are included in the ipk. This allows the inclusion of different versions of configuration templates based on e.g. user input or hardware. 
+If present, the config.js file is imported and the function it exports is run. That function will receive the hardware info gathered during hardware detection (the hwInfo object) and can run information gathering functions (or schedule async information gathering to be run later) and return a configuration object with values to be combined with template files. If a templates/ directory exists in the same subdir as a config.js file, and the config.js file does not return null, then those templates are included in the ipk. This allows the inclusion of different versions of configuration templates based on e.g. user input or hardware.
 
 The config objects returned from all config.js files are combined into a single config object and all templates (except for those that were ignored) are combined with the config object using the underscore.js template compiler. 
 
