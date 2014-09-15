@@ -572,16 +572,27 @@ var installIpk = function(conn, ipkPath, callback) {
             console.log("Installing IPK");
             remoteCommand(conn, "/bin/opkg --force-overwrite install " + ipkRemotePath, function(err, stdout, stderr) {
                 if(err || stderr) {
-                    console.log("IPK install error");
-                    console.log("STDOUT: " + stdout);
-                    console.log("STDERR: " + stderr);
-                    callback("ipk install error");
+                    var msg = "IPK install error. STDOUT: " + stdout + " STDERR: " + stderr;
+                    console.log(msg);
+                    callback(msg);
                 } else {
                     console.log("IPK installed successfully");
-                    remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
-                        console.log("Rebooting");
-                        callback(null);
-                    });
+                    // @@TODO: Have configs include list of post-install commands to run
+                    // probably could just concat them with semicolons or maybe could just use
+                    // async library to handle chaining of commands
+                    remoteCommand(conn, "/etc/init.d/meshrouting enable", function(err, stdout, stderr) { 
+                      if(err || stderr) {
+                          var msg = "Error in post-install script. STDOUT: " + stdout + " STDERR: " + stderr;
+                          console.log(msg);
+                          callback(msg);
+                      } else {
+                        console.log("Enabled mesh routing");
+                        remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
+                            console.log("Rebooting");
+                            callback(null);
+                        });
+                      }
+                  });
                 }
             });
         });
