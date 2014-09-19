@@ -33,7 +33,6 @@ start() {
     iptables -P FORWARD ACCEPT
     iptables -t nat -F POSTROUTING
 
-
     # Enable IP masquerading for ethernet output (NAT)
     iptables -t nat -A POSTROUTING -o $ETH -j MASQUERADE
     echo 1 > /proc/sys/net/ipv4/ip_forward
