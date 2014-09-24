@@ -16,12 +16,16 @@ module.exports = function(u, hwInfo, callback) {
 
     };
 
-    u.createNodeInDB(function(err, nodeInfo) {
-        if(err) return callback("Error creating node in remote node database: " + err);
-
-        extend(conf, nodeInfo);
+    console.log(u.userConfig);
+    if (!u.userConfig.offline) {
+	u.createNodeInDB(function(err, nodeInfo) {
+            if(err) return callback("Error creating node in remote node database: " + err);
+	    
+            extend(conf, nodeInfo);
+            callback(null, conf);
+	});
+    } else {
+	extend(conf, u.userConfig)
         callback(null, conf);
-    });
-        
-
+    }    
 };
