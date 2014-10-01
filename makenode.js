@@ -11,6 +11,7 @@ var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
+var ip = requre('ip');
 //var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
@@ -22,10 +23,6 @@ var debug = function(str) {
         console.log(str);
     }
 }
-
-u.userConfig = {
-    offline: false
-};
 
 var usage = function() {
     console.error('');
@@ -631,8 +628,12 @@ var configureNode = function(ip, port, password, callback) {
 
 if(argv.offline) {
     console.log("offline");
-    u.userConfig.offline = true;
-    extend(u.userConfig, JSON.parse(argv.offline));
+
+    var offlineData = fs.readFile(argv.offline, {encoding: 'utf8'}, function(err, data) {
+	console.log("error processing offline file '" + argv.offline + "'");
+    });
+
+    u.userConfig = JSON.parse(offlineData);
 }
 
 if(argv.help || argv.h) {

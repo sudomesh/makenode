@@ -19,17 +19,18 @@
     "url": "https://github.com/sudomesh/makenode.git"
   },
   "dependencies": {
-    "ipk-builder": "0.0.4",
-    "optimist": "~0.6.1",
-    "ssh2": "~0.3.4",
     "async": "~0.9.0",
+    "crypt3": "~0.1.5",
+    "fs.extra": "~1.2.1",
+    "ip": "^0.3.2",
+    "ipk-builder": "0.0.4",
     "ncp": "~0.6.0",
     "node.extend": "~1.1.0",
-    "fs.extra": "~1.2.1",
-    "underscore": "~1.6.0",
+    "optimist": "~0.6.1",
     "password-generator": "~0.2.2",
     "request": "~2.40.0",
-    "crypt3": "~0.1.5"
+    "ssh2": "~0.3.4",
+    "underscore": "~1.6.0"
   },
   "license": "GPLv3",
   "bugs": {

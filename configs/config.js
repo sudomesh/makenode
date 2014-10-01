@@ -16,8 +16,7 @@ module.exports = function(u, hwInfo, callback) {
 
     };
 
-    console.log(u.userConfig);
-    if (!u.userConfig.offline) {
+    if (!u.hasOwnProperty('userConfig')) {
 	u.createNodeInDB(function(err, nodeInfo) {
             if(err) return callback("Error creating node in remote node database: " + err);
 	    
@@ -25,6 +24,7 @@ module.exports = function(u, hwInfo, callback) {
             callback(null, conf);
 	});
     } else {
+	console.log(u.userConfig);
 	extend(conf, u.userConfig)
         callback(null, conf);
     }    
