@@ -11,7 +11,7 @@ var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
-var ip = requre('ip');
+var ip = require('ip');
 //var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
