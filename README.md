@@ -44,6 +44,15 @@ The config objects returned from all config.js files are combined into a single 
 
 The resulting files are packaged as an ipk, sent to the node and installed.
 
+## Offline Mode
+
+Usage: ./makenode.js --offline offlineConfig.json
+
+offlineConfig.json contains object properties that you'd like to override/set.
+offlineConfig.json is a sample of such a file.
+Looking through /configs/templates/\* will give you a pretty good idea of what variables are templated and can be set. Adding templated
+variables in those files and then adding them to offlineConfig.json *should* add those variables to the configured node.
+
 # License
 
 GPLv3

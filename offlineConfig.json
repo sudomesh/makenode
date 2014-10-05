@@ -1,0 +1,5 @@
+{ 
+  "mesh_addr_ipv4": "10.1.4.1", 
+  "mesh_dhcp_range_start": "66610", 
+  "exit_node_mesh_ipv4_addr": "10.42.0.99" 
+}

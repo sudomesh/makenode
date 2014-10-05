@@ -627,13 +627,12 @@ var configureNode = function(ip, port, password, callback) {
 };
 
 if(argv.offline) {
-    console.log("offline");
 
-    var offlineData = fs.readFile(argv.offline, {encoding: 'utf8'}, function(err, data) {
-	console.log("error processing offline file '" + argv.offline + "'");
-    });
-
+    var offlineData = fs.readFileSync(argv.offline, {encoding: 'utf8'});
+    console.log("offlineData = ");
+    console.log(offlineData);
     u.userConfig = JSON.parse(offlineData);
+
 }
 
 if(argv.help || argv.h) {
