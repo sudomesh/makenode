@@ -23,7 +23,7 @@
     "crypt3": "~0.1.5",
     "fs.extra": "~1.2.1",
     "ip": "^0.3.2",
-    "ipk-builder": "0.0.4",
+    "ipk-builder": "~0.0.5",
     "ncp": "~0.6.0",
     "node.extend": "~1.1.0",
     "optimist": "~0.6.1",
