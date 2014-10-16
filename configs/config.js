@@ -24,6 +24,7 @@ module.exports = function(u, hwInfo, callback) {
             callback(null, conf);
 	});
     } else {
+	console.log("offline mode. user configuration:");
 	console.log(u.userConfig);
 	extend(conf, u.userConfig)
         callback(null, conf);

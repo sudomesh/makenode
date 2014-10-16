@@ -11,7 +11,6 @@ var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
-var ip = requre('ip');
 //var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
@@ -627,13 +626,35 @@ var configureNode = function(ip, port, password, callback) {
 };
 
 if(argv.offline) {
-    console.log("offline");
+    var uuid = require('node-uuid');
+    var offlineData = require(argv.offline);
 
-    var offlineData = fs.readFile(argv.offline, {encoding: 'utf8'}, function(err, data) {
-	console.log("error processing offline file '" + argv.offline + "'");
-    });
+    var computeDHCPStart = function(str) {
+	var addrArray = str.split('.');
+	addrArray.shift();
+	var ret = parseInt(addrArray.shift());
+	ret = 256 * ret + parseInt(addrArray.shift());
+	ret = 256 * ret + parseInt(addrArray.shift());
+	return ret;
+    }
 
-    u.userConfig = JSON.parse(offlineData);
+    if (!offlineData.hasOwnProperty('mesh_dhcp_range_start'))
+	offlineData['mesh_dhcp_range_start'] = computeDHCPStart(offlineData['mesh_addr_ipv4']);
+
+    if (!offlineData.hasOwnProperty('mesh_subnet_ipv4')) {
+	offlineData['mesh_subnet_ipv4'] = offlineData['mesh_addr_ipv4']
+	    .split('.')
+	    .slice(0,3)
+	    .concat('0')
+	    .join('.');
+	offlineData['mesh_subnet_ipv4_mask'] = '255.255.255.0';
+	offlineData['mesh_subnet_ipv4_bitmask'] = '24';
+    }
+
+    if (!offlineData.hasOwnProperty('id'))
+	offlineData['id'] = uuid.v4();
+
+    u.userConfig = offlineData;
 }
 
 if(argv.help || argv.h) {
