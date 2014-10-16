@@ -44,6 +44,28 @@ The config objects returned from all config.js files are combined into a single 
 
 The resulting files are packaged as an ipk, sent to the node and installed.
 
+## Offline Mode
+
+Usage: ./makenode.js --offline offlineConfig.json
+
+offlineConfig.json contains object properties that you'd like to override/set.
+offlineConfig.json is a sample of such a file.
+Looking through /configs/templates/\* will give you a pretty good idea of what variables are templated and can be set. Adding templated
+variables in those files and then adding them to offlineConfig.json *should* add those variables to the configured node.
+
+Here's a sample offlineConfig.json file with commenting because we can't have comments in a json file:
+```
+{ 
+  "mesh_addr_ipv4": "10.1.5.1", 
+  "mesh_dhcp_range_start": "66866", // (256 * 256) + (256 * 5) + 50 - corresponds to mesh_addr_ipv4
+  "exit_node_mesh_ipv4_addr": "10.42.0.99",
+  "mesh_subnet_ipv4": "10.0.0.0",
+  "mesh_subnet_ipv4_bitmask": "8",
+  "mesh_subnet_ipv4_mask": "255.0.0.0",
+  "id": "sudomesh_nano_bb_1"
+}
+```
+
 # License
 
 GPLv3
