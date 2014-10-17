@@ -6,6 +6,20 @@ Early alpha status. Things may break.
 
 makenode combines a set of configuration file templates with information like generated SSH keys, assigned IP address ranges, private wifi pasword, etc. then bundles the resulting configuration files into an ipk package, sends the ipk to the node using scp and installs the package. makenode can also optionally flash the node using the sudomesh firmware to prepare it for configuration.
 
+# Install Dependencies
+
+System dependencies
+
+* dropbear
+
+## Debian-based Operating Systems
+
+    sudo apt-get install dropbear
+
+Install Node.js packages:
+
+    npm install
+
 # Usage
 
 ```
