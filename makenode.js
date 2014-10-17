@@ -627,7 +627,7 @@ var configureNode = function(ip, port, password, callback) {
 
 if(argv.offline) {
     var uuid = require('node-uuid');
-    var offlineData = require(argv.offline);
+    var offlineData = require('./' + argv.offline);
 
     var computeDHCPStart = function(addr, offset) {
 	var addrArray = addr.split('.');
