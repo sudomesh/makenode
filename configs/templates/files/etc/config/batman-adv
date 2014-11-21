@@ -1,8 +1,0 @@
-config mesh 'bat0'
-  option 'aggregated_ogms' # no idea what this means
-  option 'ap_isolation' # no idea what this means
-<% if(downstream_bw && upstream_bw) { %>
-  option 'gw_mode' 'server <%= downstream_bw %>kbit/<%= upstream_bw %>kbit'
-<% } else { %>
-  option 'gw_mode' 'client'
-<% } %>

@@ -1,0 +1,47 @@
+config 'bmx6' 'general'
+       option 'runtimeDir' '/var/run/bmx6'
+       option 'tun4Address' '<%= mesh_addr_ipv4 %>/32'
+       option 'tun6Address' '2012:0:0:1000::1/64' 
+
+config 'ipVersion' 'ipVersion'
+       option 'ipVersion' '6'   # default is 4
+#       option 'throwRules' '0'
+
+
+config 'plugin'
+        option 'plugin' 'bmx6_config.so'
+
+
+
+#config 'plugin'
+#        option 'plugin' 'bmx6_json.so'
+
+
+
+#config 'plugin'
+#        option 'plugin' 'bmx6_sms.so'
+
+
+config 'dev' 'mesh'
+        option 'dev' 'adhoc0'
+
+
+#config 'hna' 'my_global_prefix'
+#       option 'hna' '2012:0:0:74:0:0:0:0/64'
+
+
+config 'tunOut'
+        option 'tunOut' 'ip6'
+        option 'network' '::/0'
+
+config 'tunOut'
+        option 'tunOut' 'ip4'
+        option 'network' '0.0.0.0/0'
+
+#config 'tunOut'
+#        option 'tunOut' 'ip4'
+#        option 'network' '10.254.0.0/16'
+#        option 'exportDistance' '0'  # requires quagga plugin !
+#        option 'minPrefixLen' '27'
+
+
