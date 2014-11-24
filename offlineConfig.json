@@ -1,9 +1,13 @@
 { 
   "mesh_addr_ipv4": "10.1.5.1",
-  "mesh_dhcp_range_start": "66866",
+  "mesh_addr_ipv6": "a234:453:2343:a3::33:1:23",
+  "mesh_dhcp_range_start": "50",
   "exit_node_mesh_ipv4_addr": "10.42.0.99",
   "mesh_subnet_ipv4": "10.0.0.0",
+  "mesh_opennet_ipv4": "10.1.5.0",
+  "mesh_opennet_ipv4_bitmask": "24",
+  "mesh_opennet_ipv4_mask": "255.255.255.0",
   "mesh_subnet_ipv4_bitmask": "8",
   "mesh_subnet_ipv4_mask": "255.0.0.0",
-  "id": "sudomesh_nano_bb_1"
+  "id": "maxb.bmx6.nointernet"
 }

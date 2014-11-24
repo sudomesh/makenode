@@ -13,6 +13,9 @@ config dnsmasq
        option readethers 1
        option leasefile '/tmp/dhcp.leases'
        option resolvfile '/tmp/resolv.conf.auto'
+       list interface 'open0'
+       list interface 'priv0'
+
 
 config 'dhcp' 'meshpool'
        option interface 'open'
@@ -20,8 +23,8 @@ config 'dhcp' 'meshpool'
        option start <%= mesh_dhcp_range_start %>
        option limit 203
        option leasetime 5m
-       list dhcp_option '1,<%= mesh_subnet_ipv4_mask %>' # subnet mask
-       list dhcp_option '3,<%= exit_node_mesh_ipv4_addr %>' # gateway
+       list dhcp_option '1,<%= mesh_opennet_ipv4_mask %>' # subnet mask
+       list dhcp_option '3,<%= mesh_addr_ipv4 %>' # gateway
        list dhcp_option '6,<%= exit_node_mesh_ipv4_addr %>' # DNS
 
 config 'dhcp' 'privatepool'

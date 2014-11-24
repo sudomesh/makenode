@@ -17,8 +17,7 @@ PRIV=priv0
 TUN=l2tp0
 ADHOC=adhoc0
 
-NODENET=<%= mesh_subnet_ipv4 %>/32
-OPENNET=<%= mesh_subnet_ipv4 %>/24
+OPENNET=<%= mesh_opennet_ipv4 %>/24
 MESHNET=10.0.0.0/8
 PRIVNET=172.30.0.0/24
 BADNET=10.0.0.0/24 # sometimes used by home routers
@@ -28,10 +27,7 @@ PRIVIP=172.30.0.1
 
 start() {
 
-    bmx6 dev=$ADHOC tunDev=Default /tun4Address=$NODENET
-    bmx6 -c tunIn=v4Open /tun4Address=$OPENNET
-    bmx6 -c tunOut=v4Default /network=0.0.0.0/0 tunOut=v6Default /network=::/0
-
+    bmx6 -c dev=$ADHOC || echo 'bmx6 not yet started'
     iptables -F INPUT
     iptables -P INPUT ACCEPT
     iptables -F FORWARD
