@@ -29,15 +29,16 @@ case "$STATUS" in
   session.up)
     echo "Received 'session.up' for interface ${IFACE}"
 
-    batctl if add $IFACE
     ifconfig $IFACE up
+    bmx6 -c dev=$IFACE || bmx6 dev=$IFACE
     config_load tunneldigger 
 
     ;;
   session.down)
     echo "Received 'session.down' for interface ${IFACE}"
 
-    batctl if del $IFACE
+    bmx6 -c dev=-$IFACE
+
 
     ;;
 esac
