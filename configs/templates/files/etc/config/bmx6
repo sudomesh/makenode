@@ -1,7 +1,7 @@
 config 'bmx6' 'general'
        option 'runtimeDir' '/var/run/bmx6'
        option 'tun4Address' '<%= mesh_addr_ipv4 %>/32'
-       option 'tun6Address' '2012:0:0:1000::2/64' 
+       option 'tun6Address' '<%= mesh_addr_ipv6 %>/128' 
 
 config 'ipVersion' 'ipVersion'
        option 'ipVersion' '6'   # default is 4
@@ -31,11 +31,11 @@ config 'dev' 'mesh'
 
 config 'tunDev'
         option 'tunDev' 'Default'
-        option 'tun4Address' <%= mesh_subnet_ipv4 %>/32'
+        option 'tun4Address' '<%= mesh_subnet_ipv4 %>/32'
 
 config 'tunDev'
         option 'tunDev' 'Default'
-        option 'tun6Address' <%= mesh_addr_ipv6 %>/128'
+        option 'tun6Address' '<%= mesh_addr_ipv6 %>/128'
         
 config 'tunIn'
         option 'tunIn' 'local4'

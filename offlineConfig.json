@@ -1,5 +1,6 @@
 { 
   "mesh_addr_ipv4": "10.1.5.1",
+  "open_addr_ipv4": "10.1.5.2",
   "mesh_addr_ipv6": "a234:453:2343:a3::33:1:23",
   "mesh_dhcp_range_start": "50",
   "exit_node_mesh_ipv4_addr": "10.42.0.99",

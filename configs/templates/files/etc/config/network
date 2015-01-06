@@ -14,6 +14,9 @@ config interface 'mesh'
 
 config interface 'open'
        option ifname 'open0'
+       option ipaddr '<%= mesh_addr_ipv4 %>'
+       option proto 'static'
+       option netmask '255.255.255.0'
        
 config interface 'priv'
        option ifname 'priv0'

@@ -23,9 +23,9 @@ config 'dhcp' 'meshpool'
        option start <%= mesh_dhcp_range_start %>
        option limit 203
        option leasetime 5m
-       list dhcp_option '1,<%= mesh_opennet_ipv4_mask %>' # subnet mask
-       list dhcp_option '3,<%= mesh_addr_ipv4 %>' # gateway
-       list dhcp_option '6,<%= exit_node_mesh_ipv4_addr %>' # DNS
+       list dhcp_option '1,<%= mesh_subnet_ipv4_mask %>' # subnet mask
+       list dhcp_option '3,<%= open_addr_ipv4 %>' # gateway
+       list dhcp_option '6,<%= open_addr_ipv4 %>' # DNS
 
 config 'dhcp' 'privatepool'
        option interface 'priv'
