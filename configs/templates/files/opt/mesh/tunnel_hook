@@ -30,14 +30,16 @@ case "$STATUS" in
     echo "Received 'session.up' for interface ${IFACE}"
 
     ifconfig $IFACE up
-    bmx6 -c dev=$IFACE || bmx6 dev=$IFACE
+    # NEED TO REPLACE THIS HOOK WITH BABEL
+    # bmx6 -c dev=$IFACE || bmx6 dev=$IFACE
     config_load tunneldigger 
 
     ;;
   session.down)
     echo "Received 'session.down' for interface ${IFACE}"
 
-    bmx6 -c dev=-$IFACE
+    # NEED TO REPLACE THIS HOOK WITH BABEL
+    # bmx6 -c dev=-$IFACE
 
 
     ;;

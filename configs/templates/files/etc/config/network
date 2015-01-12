@@ -8,13 +8,21 @@ config interface 'lan'
        option ifname 'eth0'
        option proto 'dhcp'
 
+config 'alias' 
+       option 'interface' 'lan'
+       option 'proto' 'static'
+       option 'ipaddr' '192.168.13.37'
+       option 'netmask' '255.255.255.0'
+
 config interface 'mesh'
        option ifname 'adhoc0'
-       option proto 'bmx6'
+       option proto 'static'
+       option ipaddr '<%= mesh_addr_ipv4 %>'
+       option netmask '255.255.255.255'
 
 config interface 'open'
        option ifname 'open0'
-       option ipaddr '<%= mesh_addr_ipv4 %>'
+       option ipaddr '<%= open_addr_ipv4 %>'
        option proto 'static'
        option netmask '255.255.255.0'
        

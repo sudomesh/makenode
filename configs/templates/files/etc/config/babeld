@@ -1,0 +1,8 @@
+config interface
+  option 'ifname' 'mesh'
+
+config filter
+  option 'type' 'redistribute'
+  option 'ip' '<%= mesh_opennet_ipv4 %>/<%= mesh_opennet_ipv4_bitmask %>'
+  option 'le' '24'
+  option 'action' 'metric 128'

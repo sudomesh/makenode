@@ -11,6 +11,7 @@ EXITIP=<%= exit_node_mesh_ipv4_addr %>
 
 ETH=eth0
 OPEN=open0
+# NEEDS TO BE UPDATED FOR BABEL
 MESH4=bmxC4Default
 MESH6=bmxC6Default
 PRIV=priv0
