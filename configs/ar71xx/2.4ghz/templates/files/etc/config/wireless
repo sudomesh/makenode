@@ -1,8 +1,14 @@
 config wifi-device 'radio0'
-	option type 'mac80211'
-	option hwmode '11g'
-	option channel '3' 
-	option phy 'phy0'
+	option type     mac80211
+	option channel  3
+	option macaddr	<%= macAddr %>
+	option hwmode	11ng
+	option htmode	HT20
+	list ht_capab	SHORT-GI-20
+	list ht_capab	SHORT-GI-40
+	list ht_capab	TX-STBC
+	list ht_capab	RX-STBC1
+	list ht_capab	DSSS_CCK-40
 
 # the open wifi ap 
 config wifi-iface
