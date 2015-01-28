@@ -1,14 +1,14 @@
 { 
-  "mesh_addr_ipv4": "10.1.5.1",
-  "open_addr_ipv4": "10.1.5.2",
-  "mesh_addr_ipv6": "a234:453:2343:a3::33:1:23",
-  "mesh_dhcp_range_start": "50",
-  "exit_node_mesh_ipv4_addr": "10.42.0.99",
+  "mesh_addr_ipv4": "10.1.2.1",
   "mesh_subnet_ipv4": "10.0.0.0",
-  "mesh_opennet_ipv4": "10.1.5.0",
-  "mesh_opennet_ipv4_bitmask": "24",
-  "mesh_opennet_ipv4_mask": "255.255.255.0",
   "mesh_subnet_ipv4_bitmask": "8",
   "mesh_subnet_ipv4_mask": "255.0.0.0",
-  "id": "maxb.bmx6.nointernet"
+  "open_addr_ipv4": "10.1.2.1",
+  "open_subnet_ipv4": "10.1.2.0",
+  "open_subnet_ipv4_mask": "255.255.255.0",
+  "open_subnet_ipv4_bitmask": "24",
+  "mesh_addr_ipv6": "a234:453:2343:a1::31:1:23",
+  "exit_node_mesh_ipv4_addr": "10.42.0.99",
+  "relay_node_inet_ipv4_addr ": "104.236.129.216",
+  "id": "maxb-babel-nointernet-2"
 }
