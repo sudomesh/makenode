@@ -15,7 +15,7 @@ config wifi-iface
 	option device 'radio0'
 	option ifname 'open0'
 	option encryption 'none'
-	option network 'openmesh'
+	option network 'open'
 	option mode 'ap'
 	option ssid 'peoplesopen.net'
 
@@ -23,6 +23,7 @@ config wifi-iface
 config wifi-iface
 	option device 'radio0'
 	option ifname 'adhoc0'
+  option network 'mesh'
  	option encryption 'none'
 	option mode 'adhoc'
 	option bssid 'CA:FE:C0:DE:F0:0D'

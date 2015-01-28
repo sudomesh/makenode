@@ -9,7 +9,7 @@ config wifi-iface
 	option device 'radio0'
 	option ifname 'open0'
 	option encryption 'none'
-	option network 'openmesh'
+	option network 'open'
 	option mode 'ap'
 	option ssid 'peoplesopen.net'
 

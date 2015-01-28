@@ -12,13 +12,11 @@ EXITIP=<%= exit_node_mesh_ipv4_addr %>
 ETH=eth0
 OPEN=open0
 # NEEDS TO BE UPDATED FOR BABEL
-MESH4=bmxC4Default
-MESH6=bmxC6Default
 PRIV=priv0
 TUN=l2tp0
 ADHOC=adhoc0
 
-OPENNET=<%= mesh_opennet_ipv4 %>/24
+OPENNET=<%= open_subnet_ipv4 %>/24
 MESHNET=10.0.0.0/8
 PRIVNET=172.30.0.0/24
 BADNET=10.0.0.0/24 # sometimes used by home routers
@@ -28,7 +26,6 @@ PRIVIP=172.30.0.1
 
 start() {
 
-    bmx6 -c dev=$ADHOC || echo 'bmx6 not yet started'
     iptables -F INPUT
     iptables -P INPUT ACCEPT
     iptables -F FORWARD
@@ -39,93 +36,93 @@ start() {
     iptables -t nat -A POSTROUTING -o $ETH -j MASQUERADE
     echo 1 > /proc/sys/net/ipv4/ip_forward
 
-    # Enable IP masquerading for private net access to mesh
-    iptables -t nat -A POSTROUTING -s $PRIVNET -d $MESHNET -j MASQUERADE 
+#     # Enable IP masquerading for private net access to mesh
+#     iptables -t nat -A POSTROUTING -s $PRIVNET -d $MESHNET -j MASQUERADE 
 
-    # Only allow stuff from mesh to private if is part of
-    # an established connection and is from the mesh subnet
-    iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $PRIVNET -s $MESHNET -j ACCEPT
-    iptables -A INPUT -s $MESHNET -d $PRIVNET -j DROP
+#     # Only allow stuff from mesh to private if is part of
+#     # an established connection and is from the mesh subnet
+#     iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $PRIVNET -s $MESHNET -j ACCEPT
+#     iptables -A INPUT -s $MESHNET -d $PRIVNET -j DROP
 
-    # accept everything local
-    iptables -A INPUT -i lo -j ACCEPT
+#     # accept everything local
+#     iptables -A INPUT -i lo -j ACCEPT
 
-    # ignore anything from or to 10.0.0.0/24
-    # since we don't use it for the net
-    # and some home routers use it per default
-    iptables -A INPUT -s $BADNET -j DROP
-    iptables -A INPUT -d $BADNET -j DROP
+#     # ignore anything from or to 10.0.0.0/24
+#     # since we don't use it for the net
+#     # and some home routers use it per default
+#     iptables -A INPUT -s $BADNET -j DROP
+#     iptables -A INPUT -d $BADNET -j DROP
 
-    # allow packets from the open, mesh and priv interfaces as long as the IP's are correct
-    iptables -A INPUT -i $MESH4 -s $MESHNET -j ACCEPT
-    iptables -A INPUT -i $MESH6 -s $MESHNET -j ACCEPT
-    iptables -A INPUT -i $PRIV -s $PRIVNET -j ACCEPT
+#     # allow packets from the open, mesh and priv interfaces as long as the IP's are correct
+#     iptables -A INPUT -i $MESH4 -s $MESHNET -j ACCEPT
+#     iptables -A INPUT -i $MESH6 -s $MESHNET -j ACCEPT
+#     iptables -A INPUT -i $PRIV -s $PRIVNET -j ACCEPT
 
-    # allow DHCP on open and priv
-    iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
-    iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+#     # allow DHCP on open and priv
+#     iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+#     iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
 
-    # allow established connections from ethernet
-    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ETH -j ACCEPT
+#     # allow established connections from ethernet
+#     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ETH -j ACCEPT
 
-    iptables -P INPUT DROP
+#     iptables -P INPUT DROP
 
-    ### FORWARDING ###
+#     ### FORWARDING ###
 
-    # ignore anything from or to 10.0.0.0/24
-    # since we don't use it for the net
-    # and some home routers use it per default
-    iptables -A FORWARD -s $BADNET -j DROP
-    iptables -A FORWARD -d $BADNET -j DROP
+#     # ignore anything from or to 10.0.0.0/24
+#     # since we don't use it for the net
+#     # and some home routers use it per default
+#     iptables -A FORWARD -s $BADNET -j DROP
+#     iptables -A FORWARD -d $BADNET -j DROP
 
-    # Allow traffic from mesh interfaces as long as it's not headed for privnet
-    iptables -A FORWARD -i $OPEN -s $MESHNET ! -d $PRIVNET -j ACCEPT
-    iptables -A FORWARD -i $MESH4 -s $MESHNET ! -d $PRIVNET -j ACCEPT
-    iptables -A FORWARD -i $MESH6 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+#     # Allow traffic from mesh interfaces as long as it's not headed for privnet
+#     iptables -A FORWARD -i $OPEN -s $MESHNET ! -d $PRIVNET -j ACCEPT
+#     iptables -A FORWARD -i $MESH4 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+#     iptables -A FORWARD -i $MESH6 -s $MESHNET ! -d $PRIVNET -j ACCEPT
 
-    # Allow all traffic from privnet
-    iptables -A FORWARD -i $PRIV -s $PRIVNET -j ACCEPT
+#     # Allow all traffic from privnet
+#     iptables -A FORWARD -i $PRIV -s $PRIVNET -j ACCEPT
 
-    # allow forwarding of established connections from private
-    iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-    #iptables -A FORWARD -m state --state NEW -i $PRIV -j ACCEPT # TODO probably not needed
+#     # allow forwarding of established connections from private
+#     iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+#     #iptables -A FORWARD -m state --state NEW -i $PRIV -j ACCEPT # TODO probably not needed
 
-    # No traffic from TUN to PRIV or from PRIV to TUN
-    iptables -A FORWARD -i $TUN -o $PRIV -j DROP
-    iptables -A FORWARD -i $PRIV -o $TUN -j DROP
+#     # No traffic from TUN to PRIV or from PRIV to TUN
+#     iptables -A FORWARD -i $TUN -o $PRIV -j DROP
+#     iptables -A FORWARD -i $PRIV -o $TUN -j DROP
 
-    # no mesh to internet forward (only through tunnel)
-    iptables -A FORWARD -i $MESH4 -o $ETH -j DROP
-    iptables -A FORWARD -i $MESH6 -o $ETH -j DROP
-    iptables -A FORWARD -i $OPEN -o $ETH -j DROP
-    iptables -A FORWARD -i $MESH -o $ETH -j DROP
-    iptables -A FORWARD -i $ADHOC -o $ETH -j DROP
-    iptables -A FORWARD -i $OPEN -o $ETH -j DROP
-    iptables -A FORWARD -i $TUN -o $ETH -j DROP
+#     # no mesh to internet forward (only through tunnel)
+#     iptables -A FORWARD -i $MESH4 -o $ETH -j DROP
+#     iptables -A FORWARD -i $MESH6 -o $ETH -j DROP
+#     iptables -A FORWARD -i $OPEN -o $ETH -j DROP
+#     iptables -A FORWARD -i $MESH -o $ETH -j DROP
+#     iptables -A FORWARD -i $ADHOC -o $ETH -j DROP
+#     iptables -A FORWARD -i $OPEN -o $ETH -j DROP
+#     iptables -A FORWARD -i $TUN -o $ETH -j DROP
 
-    iptables -P FORWARD DROP
-    #iptables -P FORWARD ACCEPT
+#     iptables -P FORWARD DROP
+#     #iptables -P FORWARD ACCEPT
 
-    # no internet to internet forward
-    iptables -A FORWARD -i $ETH -o $ETH -j DROP
+#     # no internet to internet forward
+#     iptables -A FORWARD -i $ETH -o $ETH -j DROP
 
-    # TODO: What about non-IP traffic? 
+#     # TODO: What about non-IP traffic? 
 
-    ip route add default via $EXITIP dev $OPEN table public
-    ip route add default via $EXITIP dev $MESH4 table public
-    ip route add default via $EXITIP dev $MESH6 table public
+#     ip route add default via $EXITIP dev $OPEN table public
+#     ip route add default via $EXITIP dev $MESH4 table public
+#     ip route add default via $EXITIP dev $MESH6 table public
 
-    ip route add $PRIVNET dev $PRIV proto kernel scope link src $PRIVIP table public
+#     ip route add $PRIVNET dev $PRIV proto kernel scope link src $PRIVIP table public
 
-    ip route add $MESHNET dev $OPEN proto kernel scope link src $NODEIP table public
-    ip route add $MESHNET dev $MESH4 proto kernel scope link src $NODEIP table public
-    ip route add $MESHNET dev $MESH6 proto kernel scope link src $NODEIP table public
+#     ip route add $MESHNET dev $OPEN proto kernel scope link src $NODEIP table public
+#     ip route add $MESHNET dev $MESH4 proto kernel scope link src $NODEIP table public
+#     ip route add $MESHNET dev $MESH6 proto kernel scope link src $NODEIP table public
 
-    ip rule add from $MESHNET iif $MESH4 prio 16000 table public
-    ip rule add from $MESHNET iif $MESH6 prio 16000 table public
-    ip rule add from $MESHNET iif $OPEN prio 16000 table public
+#     ip rule add from $MESHNET iif $MESH4 prio 16000 table public
+#     ip rule add from $MESHNET iif $MESH6 prio 16000 table public
+#     ip rule add from $MESHNET iif $OPEN prio 16000 table public
 
-    ip route flush cache 
+#     ip route flush cache 
 
 }
 

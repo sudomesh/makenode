@@ -29,17 +29,13 @@ case "$STATUS" in
   session.up)
     echo "Received 'session.up' for interface ${IFACE}"
 
-    ifconfig $IFACE up
-    # NEED TO REPLACE THIS HOOK WITH BABEL
-    # bmx6 -c dev=$IFACE || bmx6 dev=$IFACE
+    ip link set $IFACE up
+    ip addr add <%= mesh_addr_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %> dev $IFACE
     config_load tunneldigger 
 
     ;;
   session.down)
     echo "Received 'session.down' for interface ${IFACE}"
-
-    # NEED TO REPLACE THIS HOOK WITH BABEL
-    # bmx6 -c dev=-$IFACE
 
 
     ;;

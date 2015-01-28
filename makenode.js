@@ -638,8 +638,8 @@ if(argv.offline) {
 	return ret;
     }
 
-    if (!offlineData.hasOwnProperty('mesh_dhcp_range_start'))
-	offlineData['mesh_dhcp_range_start'] = computeDHCPStart(offlineData['mesh_addr_ipv4'], 50);
+    if (!offlineData.hasOwnProperty('open_dhcp_range_start'))
+	offlineData['open_dhcp_range_start'] = computeDHCPStart(offlineData['open_addr_ipv4'], 50);
 
     if (!offlineData.hasOwnProperty('mesh_subnet_ipv4')) {
 	offlineData['mesh_subnet_ipv4'] = offlineData['mesh_addr_ipv4']
