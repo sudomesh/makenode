@@ -8,3 +8,8 @@ config filter
   option 'ip' '<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>'
   option 'le' '24'
   option 'action' 'metric 128'
+
+config filter
+  option 'type' 'redistribute'
+  option 'local' 'true'
+  option 'action' 'deny'
