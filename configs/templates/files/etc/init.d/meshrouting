@@ -98,9 +98,6 @@ start() {
     iptables -A FORWARD -i $TUN -o $ETH -j DROP
 
 
-    # Set MSS for tcp because of tunnel
-    iptables -t mangle -A FORWARD -o $TUN -p tcp -m tcp --tcp-flags SYN,RST SYN -s $OPENNET -j TCPMSS --set-mss 1398
-
     iptables -P FORWARD DROP
 
     # no internet to internet forward
