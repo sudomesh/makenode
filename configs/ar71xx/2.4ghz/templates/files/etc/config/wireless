@@ -23,6 +23,7 @@ config wifi-iface
 config wifi-iface
 	option device 'radio0'
 	option ifname 'adhoc0'
+	option network 'adhoc'
  	option encryption 'none'
 	option mode 'adhoc'
 	option bssid 'CA:FE:C0:DE:F0:0D'

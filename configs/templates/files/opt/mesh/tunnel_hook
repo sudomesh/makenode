@@ -30,7 +30,7 @@ case "$STATUS" in
     echo "Received 'session.up' for interface ${IFACE}"
 
     ip link set $IFACE up
-    ip addr add <%= mesh_addr_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %> dev $IFACE
+    ip addr add <%= mesh_addr_ipv4 %>/<%= tun_subnet_ipv4_bitmask %> dev $IFACE
     config_load tunneldigger 
 
     ;;

@@ -97,6 +97,10 @@ start() {
     iptables -A FORWARD -i $OPEN -o $ETH -j DROP
     iptables -A FORWARD -i $TUN -o $ETH -j DROP
 
+
+    # Set MSS for tcp because of tunnel
+    iptables -t mangle -A FORWARD -o $TUN -p tcp -m tcp --tcp-flags SYN,RST SYN -s $OPENNET -j TCPMSS --set-mss 1398
+
     iptables -P FORWARD DROP
 
     # no internet to internet forward
@@ -104,7 +108,7 @@ start() {
 
     ip route add $OPENNET dev $OPEN  proto kernel  scope link  src $NODEIP table public
 
-    ip rule del $MESHNET prio 16000 table public
+    ip rule del from $MESHNET prio 16000 table public
     ip rule del to $MESHNET prio 16000 table public
 
     ip rule add from $MESHNET prio 16000 table public

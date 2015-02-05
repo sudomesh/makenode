@@ -3,12 +3,18 @@
   "mesh_subnet_ipv4": "10.0.0.0",
   "mesh_subnet_ipv4_bitmask": "8",
   "mesh_subnet_ipv4_mask": "255.0.0.0",
+  "adhoc_addr_ipv4": "10.1.2.1",
+  "adhoc_subnet_ipv4_bitmask": "32",
+  "adhoc_subnet_ipv4_mask": "255.255.255.255",
+  "tun_addr_ipv4": "10.1.2.1",
+  "tun_subnet_ipv4_bitmask": "32",
+  "tun_subnet_ipv4_mask": "255.255.255.255",
   "open_addr_ipv4": "10.1.2.1",
   "open_subnet_ipv4": "10.1.2.0",
   "open_subnet_ipv4_mask": "255.255.255.0",
   "open_subnet_ipv4_bitmask": "24",
-  "mesh_addr_ipv6": "a234:453:2343:a1::31:1:23",
+  "mesh_addr_ipv6": "a234:453:2343:a1::30:1:23",
   "exit_node_mesh_ipv4_addr": "10.42.0.99",
   "relay_node_inet_ipv4_addr ": "104.236.129.216",
-  "id": "maxb-babel-nointernet-2"
+  "id": "maxb-testing-h"
 }
