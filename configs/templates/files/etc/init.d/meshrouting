@@ -99,6 +99,8 @@ start() {
     iptables -A FORWARD -i $TUN -o $ETH -j DROP
 
 
+    iptables -t mangle -D FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+    iptables -t mangle -D FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
     iptables -t mangle -A FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
     iptables -t mangle -A FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
 

@@ -2,6 +2,7 @@ config wifi-device 'radio0'
 	option type     mac80211
 	option channel  157
 	option macaddr	<%= macAddr %>
+  option txpower  '<%= tx_power %>'
 	option hwmode	11n
 	option htmode	HT40+
 	list ht_capab	SHORT-GI-20
