@@ -229,10 +229,6 @@ var compileTemplate = function(config, fromTemplate, toFile, callback) {
         var fileData = fs.readFile(fromTemplate, {encoding: 'utf8'}, function(err, data) {
             if(err) return callback(err);
             var template = underscore.template(data);
-            console.error("data")
-            console.error(data)
-            console.error("template")
-            console.error(template)
             var compiledData = template(config);
             fs.mkdirp(path.dirname(toFile), function(err) {
                 if(err) return callback("Could not create staging directory for compiled template");
