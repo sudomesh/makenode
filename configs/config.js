@@ -17,16 +17,16 @@ module.exports = function(u, hwInfo, callback) {
     };
 
     if (!u.hasOwnProperty('userConfig')) {
-	u.createNodeInDB(function(err, nodeInfo) {
+	      u.createNodeInDB(function(err, nodeInfo) {
             if(err) return callback("Error creating node in remote node database: " + err);
-	    
+	          
             extend(conf, nodeInfo);
             callback(null, conf);
-	});
+	      });
     } else {
-	console.log("offline mode. user configuration:");
-	console.log(u.userConfig);
-	extend(conf, u.userConfig)
+	      console.log("offline mode. user configuration:");
+	      console.log(u.userConfig);
+	      extend(conf, u.userConfig)
         callback(null, conf);
     }    
 };

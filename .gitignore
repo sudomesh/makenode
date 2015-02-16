@@ -4,3 +4,4 @@ node_modules/**
 staging/**
 ipks/
 templateStaging/
+settings.js

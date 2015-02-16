@@ -12,13 +12,23 @@ System dependencies
 
 * dropbear
 
-## Debian-based Operating Systems
+```
+sudo apt-get install dropbear
+```
 
-    sudo apt-get install dropbear
+Install node.js packages:
 
-Install Node.js packages:
+```
+npm install
+```
 
-    npm install
+# Settings
+
+Copy and tweak settings file
+
+```
+cp settings.js.example settings.js
+```
 
 # Usage
 
