@@ -30,7 +30,7 @@ start() {
     iptables -F FORWARD
     iptables -P FORWARD ACCEPT
     iptables -t nat -F POSTROUTING
-    iptables -t mangle -F POSTROUTING 
+    iptables -t mangle -F FORWARD 
 
     # Enable IP masquerading for ethernet output (NAT)
     iptables -t nat -A POSTROUTING -o $ETH -j MASQUERADE
@@ -99,8 +99,6 @@ start() {
     iptables -A FORWARD -i $TUN -o $ETH -j DROP
 
 
-    iptables -t mangle -D FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
-    iptables -t mangle -D FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
     iptables -t mangle -A FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
     iptables -t mangle -A FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
 
