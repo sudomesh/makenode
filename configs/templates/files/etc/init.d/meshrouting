@@ -63,8 +63,10 @@ start() {
     iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
     iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
 
-    # allow established connections from ethernet
+    # allow established connections from internet, including on ethernet, l2tp and adhoc 
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ETH -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ADHOC -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
 
     iptables -A INPUT -i $ETH -s $HOMENET -j ACCEPT
     iptables -P INPUT DROP
