@@ -7,7 +7,8 @@ START=90
 #    https://home.regit.org/netfilter-en/secure-use-of-helpers/
 
 # TODO: We need to somehow detect this after the tunnel comes up
-EXITIP=<%= exit_node_mesh_ipv4_addr %>
+MESHEXITIP=<%= exit_node_mesh_ipv4_addr %>
+INETEXITIP=<%= relay_node_inet_ipv4_addr %>
 
 ETH=eth0
 OPEN=open0
@@ -111,11 +112,14 @@ start() {
 
     ip route add $OPENNET dev $OPEN  proto kernel  scope link  src $NODEIP table public
 
-    ip rule del from $MESHNET prio 16000 table public
-    ip rule del to $MESHNET prio 16000 table public
+    # We want private traffic to travel over the ethernet/main table
+    # but we want all other trafic to go over the mesh/public table
+    ip rule flush
 
-    ip rule add from $MESHNET prio 16000 table public
-    ip rule add to $MESHNET prio 16000 table public
+    ip rule add from all prio 32766 table main 
+    ip rule add iif $PRIV prio 15000 table main
+    ip rule add to $INETEXITIP/32 prio 15000 table main
+    ip rule add from all prio 16000 table public
 
     ip route flush cache 
 
