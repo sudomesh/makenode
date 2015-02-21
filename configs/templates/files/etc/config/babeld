@@ -5,8 +5,7 @@ config interface
 
 config filter
   option 'type' 'redistribute'
-  option 'ip' '<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>'
-  option 'le' '24'
+  option 'if' 'open0'
   option 'action' 'metric 128'
 
 config filter
