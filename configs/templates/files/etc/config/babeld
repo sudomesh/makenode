@@ -1,5 +1,8 @@
 config interface
   option 'ifname' 'l2tp0'
+  option 'wired' 'true'
+  option 'link-quality' 'true'
+
 config interface
   option 'ifname' 'adhoc0'
 
