@@ -580,17 +580,17 @@ var installIpk = function(conn, ipkPath, callback) {
                     // @@TODO: Have configs include list of post-install commands to run
                     // probably could just concat them with semicolons or maybe could just use
                     // async library to handle chaining of commands
-                    remoteCommand(conn, "/etc/init.d/meshrouting enable && /etc/init.d/babeld enable", function(err, stdout, stderr) { 
+                    remoteCommand(conn, "/etc/init.d/meshrouting enable; /etc/init.d/babeld enable", function(err, stdout, stderr) { 
                       if(err || stderr) {
                           var msg = "Error in post-install script. STDOUT: " + stdout + " STDERR: " + stderr;
                           console.log(msg);
                           callback(msg);
                       } else {
                         console.log("Enabled mesh routing");
-                        remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
-                            console.log("Rebooting");
-                            callback(null);
-                        });
+                        // remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
+                        //     console.log("Rebooting");
+                        //     callback(null);
+                        // });
                       }
                   });
                 }
@@ -673,7 +673,7 @@ function configure() {
         var ip = argv.ip || settings.ip || '192.168.1.1';
         var port = argv.port || settings.port || 22;
         var password = argv.password || settings.rootPassword || 'meshtheplanet';
-        
+
         configureNode(ip, port, password, function(err) {
             if(err) {
                 console.error("Error: " + err);

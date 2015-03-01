@@ -16,11 +16,13 @@ PRIV=priv0
 TUN=l2tp0
 ADHOC=adhoc0
 
-OPENNET=<%= open_subnet_ipv4 %>/24
-HOMENET=192.168.0.0/16
-MESHNET=10.0.0.0/8
+OPENNET=<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>
+MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>
 PRIVNET=172.30.0.0/24
 BADNET=10.0.0.0/24 # sometimes used by home routers
+
+LOCALNET1=192.168.0.0/16 
+LOCALNET2=10.0.0.0/8
 
 NODEIP=<%= mesh_addr_ipv4 %>
 PRIVIP=172.30.0.1
@@ -69,7 +71,8 @@ start() {
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ADHOC -j ACCEPT
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
 
-    iptables -A INPUT -i $ETH -s $HOMENET -j ACCEPT
+    iptables -A INPUT -i $ETH -s $LOCALNET1 -j ACCEPT
+    iptables -A INPUT -i $ETH -s $LOCALNET2 -j ACCEPT
     iptables -P INPUT DROP
 
     ### FORWARDING ###
@@ -115,6 +118,12 @@ start() {
     # We want private traffic to travel over the ethernet/main table
     # but we want all other trafic to go over the mesh/public table
     ip rule flush
+
+    ip rule add from $LOCALNET1 prio 14000 table main
+    ip rule add to $LOCALNET1 prio 14000 table main
+
+    ip rule add from $LOCALNET2 prio 14000 table main
+    ip rule add to $LOCALNET2 prio 14000 table main
 
     ip rule add from all prio 32766 table main 
     ip rule add iif $PRIV prio 15000 table main

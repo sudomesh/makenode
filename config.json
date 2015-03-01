@@ -1,6 +1,6 @@
 {
-    "relay_node_inet_ipv4_addr": '104.236.129.216',
-    "exit_node_mesh_ipv4_addr": '10.42.0.99',
+    "relay_node_inet_ipv4_addr": '104.236.181.226',
+    "exit_node_mesh_ipv4_addr": '100.0.0.1',
     "ssh_authorized_keys": null,
     "location": null,
     "operator": {
