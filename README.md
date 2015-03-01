@@ -80,13 +80,30 @@ variables in those files and then adding them to offlineConfig.json *should* add
 Here's a sample offlineConfig.json file with commenting because we can't have comments in a json file:
 ```
 { 
-  "mesh_addr_ipv4": "10.1.5.1", 
-  "mesh_dhcp_range_start": "66866", // (256 * 256) + (256 * 5) + 50 - corresponds to mesh_addr_ipv4
-  "exit_node_mesh_ipv4_addr": "10.42.0.99",
-  "mesh_subnet_ipv4": "10.0.0.0",
-  "mesh_subnet_ipv4_bitmask": "8",
-  "mesh_subnet_ipv4_mask": "255.0.0.0",
-  "id": "sudomesh_nano_bb_1"
+  "mesh_addr_ipv4": "100.1.2.65",
+  "mesh_subnet_ipv4": "100.0.0.0",
+  "mesh_subnet_ipv4_bitmask": "12",
+  "mesh_subnet_ipv4_mask": "255.240.0.0",
+  "adhoc_addr_ipv4": "100.1.2.65",
+  "adhoc_subnet_ipv4_bitmask": "32",
+  "adhoc_subnet_ipv4_mask": "255.255.255.255",
+  "tun_addr_ipv4": "100.1.2.65",
+  "tun_subnet_ipv4_bitmask": "32",
+  "tun_subnet_ipv4_mask": "255.255.255.255",
+  "open_addr_ipv4": "100.1.2.65",
+  "open_subnet_ipv4": "100.1.2.64",
+  "open_subnet_ipv4_mask": "255.255.255.192",
+  "open_subnet_ipv4_bitmask": "26",
+  "mesh_addr_ipv6": "a237:473:2349:a1::30:1:92",
+  "exit_node_mesh_ipv4_addr": "100.0.0.1",
+  "relay_node_inet_ipv4_addr": "104.236.181.226",
+  "tx_power": "20",
+  "id": "Sudomesh-Node-Sample",
+  "operator": {
+        "name": "Sample Node Operator",
+        "email": "node_operator1@sudomesh.org",
+        "phone": null
+    }
 }
 ```
 
