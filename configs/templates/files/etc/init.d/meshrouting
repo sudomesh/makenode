@@ -135,6 +135,7 @@ start() {
 
     ip route flush cache 
 
+    sleep 30
     /etc/init.d/babeld restart
 
 }
