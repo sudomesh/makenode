@@ -587,10 +587,10 @@ var installIpk = function(conn, ipkPath, callback) {
                           callback(msg);
                       } else {
                         console.log("Enabled mesh routing");
-                        // remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
-                        //     console.log("Rebooting");
-                        //     callback(null);
-                        // });
+                        remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
+                            console.log("Rebooting");
+                            callback(null);
+                        });
                       }
                   });
                 }

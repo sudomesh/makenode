@@ -11,9 +11,6 @@ module.exports = function(u, hwInfo, callback) {
         root_password_hash: u.askPassword("Enter desired root user password (or press enter to generate)"),
         ssh_authorized_keys: u.readFile("authorized_keys"),
 
-        exit_node_mesh_ipv4_addr: '10.42.0.99',
-        relay_node_inet_ipv4_addr: 'droplet1.sudomesh.org'
-
     };
 
     if (!u.hasOwnProperty('userConfig')) {
