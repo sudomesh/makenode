@@ -5,3 +5,4 @@ staging/**
 ipks/
 templateStaging/
 settings.js
+offlineConfig.json

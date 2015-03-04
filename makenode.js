@@ -38,7 +38,7 @@ var usage = function() {
     console.error("  --detectOnly: Report hardware detection results and exit.")
     console.error("  --detectOnlyJSON <file>: Write hardware detection results in JSON format to file and exit.")
     console.error("  --hwInfo <file>: Read hardware info results from file instead of detecting.")
-    console.error("  --offline: Prompt user for the parameters usually provided by the meshnode database.")
+    console.error("  --offline (<file>): Prompt user for the parameters usually provided by the meshnode database, or read from file.")
     console.error("  --ipkOnly: Generate .ipk file but don't automatically upload or install to node.")
     console.error('');
     console.error("Defaults can be overwritten in the settings.js file.");
@@ -583,7 +583,7 @@ var installIpk = function(conn, ipkPath, callback) {
                     // @@TODO: Have configs include list of post-install commands to run
                     // probably could just concat them with semicolons or maybe could just use
                     // async library to handle chaining of commands
-                    remoteCommand(conn, "/etc/init.d/meshrouting enable && /etc/init.d/babeld enable", function(err, stdout, stderr) { 
+                    remoteCommand(conn, "/etc/init.d/meshrouting enable; /etc/init.d/babeld enable", function(err, stdout, stderr) { 
                       if(err || stderr) {
                           var msg = "Error in post-install script. STDOUT: " + stdout + " STDERR: " + stderr;
                           console.log(msg);
@@ -676,7 +676,7 @@ function configure() {
         var ip = argv.ip || settings.ip || '192.168.1.1';
         var port = argv.port || settings.port || 22;
         var password = argv.password || settings.rootPassword || 'meshtheplanet';
-        
+
         configureNode(ip, port, password, function(err) {
             if(err) {
                 console.error("Error: " + err);
