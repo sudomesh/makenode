@@ -9,12 +9,15 @@ var ncp = require('ncp');
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
+var sslRootCAs = require('ssl-root-cas/latest')
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
 //var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
 var settings = require('./settings.js');
+
+sslRootCAs.inject(); // inject additional root CAs that node does not include
 
 var debug = function(str) {
     if(argv.debug) {

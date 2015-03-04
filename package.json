@@ -31,6 +31,7 @@
     "password-generator": "~0.2.2",
     "request": "~2.40.0",
     "ssh2": "~0.3.4",
+    "ssl-root-cas": "^1.1.10",
     "underscore": "~1.6.0"
   },
   "license": "GPLv3",
