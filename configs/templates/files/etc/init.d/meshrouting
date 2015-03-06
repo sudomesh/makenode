@@ -119,8 +119,7 @@ start() {
     # but we want all other trafic to go over the mesh/public table
     ip rule flush
 
-    ip rule add from $MESHNET prio 13000 table public
-    ip rule add to $MESHNET prio 13000 table public
+    ip rule add to $OPENNET prio 13000 table public
 
     ip rule add from $LOCALNET1 prio 14000 table main
     ip rule add to $LOCALNET1 prio 14000 table main
@@ -128,10 +127,12 @@ start() {
     ip rule add from $LOCALNET2 prio 14000 table main
     ip rule add to $LOCALNET2 prio 14000 table main
 
-    ip rule add from all prio 32766 table main 
     ip rule add iif $PRIV prio 15000 table main
     ip rule add to $INETEXITIP/32 prio 15000 table main
+
     ip rule add from all prio 16000 table public
+
+    ip rule add from all prio 32766 table main 
 
     ip route flush cache 
 

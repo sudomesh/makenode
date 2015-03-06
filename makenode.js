@@ -632,18 +632,6 @@ if(argv.offline) {
     var uuid = require('node-uuid');
     var offlineData = require('./' + argv.offline);
 
-    var computeDHCPStart = function(addr, offset) {
-	var addrArray = addr.split('.');
-	addrArray.shift();
-	var ret = parseInt(addrArray.shift());
-	ret = 256 * ret + parseInt(addrArray.shift());
-	ret = 256 * ret + parseInt(addrArray.shift()) + offset;
-	return ret;
-    }
-
-    if (!offlineData.hasOwnProperty('open_dhcp_range_start'))
-	offlineData['open_dhcp_range_start'] = computeDHCPStart(offlineData['open_addr_ipv4'], 50);
-
     if (!offlineData.hasOwnProperty('mesh_subnet_ipv4')) {
 	offlineData['mesh_subnet_ipv4'] = offlineData['mesh_addr_ipv4']
 	    .split('.')
