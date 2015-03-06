@@ -127,6 +127,9 @@ start() {
     ip rule add from $LOCALNET2 prio 14000 table main
     ip rule add to $LOCALNET2 prio 14000 table main
 
+    ip rule add from $PRIVNET prio 14000 table main
+    ip rule add to $PRIVNET prio 14000 table main
+
     ip rule add iif $PRIV prio 15000 table main
     ip rule add to $INETEXITIP/32 prio 15000 table main
 
