@@ -20,7 +20,7 @@ config dnsmasq
 config 'dhcp' 'meshpool'
        option interface 'open'
        option networkid 'open0'
-       option start <%= open_dhcp_range_start %>
+       option start 2
        option limit 60
        option leasetime 5m
        list dhcp_option '1,<%= open_subnet_ipv4_mask %>' # subnet mask
