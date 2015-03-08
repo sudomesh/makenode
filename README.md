@@ -14,6 +14,16 @@ System dependencies
 
 ```
 sudo apt-get install dropbear
+OR
+brew install dropbear
+```
+
+* fakeroot
+
+```
+sudo apt-get install fakeroot
+OR
+brew install fakeroot
 ```
 
 Install node.js packages:

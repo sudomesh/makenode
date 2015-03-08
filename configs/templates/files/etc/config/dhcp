@@ -29,6 +29,7 @@ config 'dhcp' 'meshpool'
 
 config 'dhcp' 'privatepool'
        option interface 'priv'
+       option networkid 'priv0'
        option start 10
        option limit 240
        option leasetime 30m
