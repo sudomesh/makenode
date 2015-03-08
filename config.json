@@ -1,3 +1,6 @@
+
+// I don't think this file is actually used
+
 {
     "relay_node_inet_ipv4_addr": '104.236.181.226',
     "exit_node_mesh_ipv4_addr": '100.64.0.1',
