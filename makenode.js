@@ -18,6 +18,7 @@ var u = require('./u.js');
 var settings = require('./settings.js');
 
 sslRootCAs.inject(); // inject additional root CAs that node does not include
+sslRootCAs.addFile(path.join(__dirname, 'certs', 'sub.class1.server.startcom.ca.pem'));
 
 var debug = function(str) {
     if(argv.debug) {

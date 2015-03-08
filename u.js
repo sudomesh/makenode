@@ -59,7 +59,7 @@ module.exports = u = {
                 rl.close();
                 if(!answer) {
                     if(opts.noAnswer) {
-                        answer = opts.noAnwer();
+                        answer = opts.noAnswer();
                     }
                 }
                 if(!answer && !opts.optional) {

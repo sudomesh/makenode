@@ -16,6 +16,7 @@
   "mesh_addr_ipv6": "a237:473:2389:a1::31:2:92",
   "exit_node_mesh_ipv4_addr": "100.64.0.1",
   "relay_node_inet_ipv4_addr": "104.236.181.226",
+  "open_dhcp_range_start": 514,
   "tx_power": "20",
   "id": "Sudomesh-sample",
   "operator": {
@@ -24,3 +25,12 @@
         "phone": null
     }
 }
+
+
+{ type: 'node',
+  mesh_subnet_ipv4: '100.64.2.0',
+  mesh_subnet_ipv4_mask: '255.255.255.192',
+  mesh_subnet_ipv4_bitmask: '26',
+  mesh_addr_ipv4: '100.64.2.1',
+  mesh_dhcp_range_start: '512',
+  id: '6c30694c-f51e-4d05-b807-3eff50bd02c8' }
