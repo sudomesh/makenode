@@ -3,7 +3,6 @@
 config wifi-device 'radio0'
 	option type     mac80211
 	option channel  6
-	option macaddr	'<%= macAddr %>'
 	option txpower  '<%= tx_power %>'
 
   option path     'platform/ar934x_wmac'
@@ -47,7 +46,6 @@ config wifi-iface
 config wifi-device 'radio1'
 	option type     mac80211
 	option channel  157
-	option macaddr	'<%= macAddr %>'
   option txpower  '<%= tx_power %>'
 
   option path     'pci0000:00/0000:00:00.0'
