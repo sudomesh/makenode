@@ -1,8 +1,12 @@
+
+# The 2.4 GHz radio
 config wifi-device 'radio0'
 	option type     mac80211
 	option channel  6
-	option macaddr	<%= macAddr %>
+	option macaddr	'<%= macAddr %>'
 	option txpower  '<%= tx_power %>'
+
+  option path     'platform/ar934x_wmac'
 
 	# hwmode now only accepts 11g or 11a
 	# and only affects 2.4 vs 5 GHz operation
@@ -18,7 +22,7 @@ config wifi-device 'radio0'
 	# RX-STBC1 means MIMO receive support for one spatial stream
 	# RX-STBC2 is for two streams, and so forth
 	# This should match the number of receive antennas
-	list ht_capab	RX-STBC1
+	list ht_capab	RX-STBC2
 
 # the open wifi ap 
 config wifi-iface
@@ -29,9 +33,44 @@ config wifi-iface
 	option mode 'ap'
 	option ssid 'peoplesopen.net'
 
-# the adhoc interface for the mesh
+# the private wpa2 interface
 config wifi-iface
 	option device 'radio0'
+	option ifname 'priv0'
+	option network 'priv'
+	option encryption 'psk2'
+	option key '<%= private_wifi_key %>'
+	option mode 'ap'
+	option ssid '<%= private_wifi_ssid %>'
+
+# The 5 GHz radio
+config wifi-device 'radio1'
+	option type     mac80211
+	option channel  157
+	option macaddr	'<%= macAddr %>'
+  option txpower  '<%= tx_power %>'
+
+  option path     'pci0000:00/0000:00:00.0'
+
+	# hwmode now only accepts 11g or 11a
+	# and only affects 2.4 vs 5 GHz operation
+	# see https://dev.openwrt.org/ticket/17541
+	option hwmode	11a
+
+  # Use a 40 MHz channel using specified 20 MHz channel and the next one up
+	option htmode	HT40+
+
+	# MIMO transmit support
+	list ht_capab	TX-STBC
+
+	# RX-STBC1 means MIMO receive support for one spatial stream
+	# RX-STBC2 is for two streams, and so forth
+	# This should match the number of receive antennas
+	list ht_capab	RX-STBC3
+
+# the adhoc interface for the mesh
+config wifi-iface
+	option device 'radio1'
 	option ifname 'adhoc0'
 	option network 'adhoc'
  	option encryption 'none'
@@ -44,12 +83,4 @@ config wifi-iface
 	option ssid 'pplsopen.net-node2node'
 	option hidden '1'
 
-# the private wpa2 interface
-config wifi-iface
-	option device 'radio0'
-	option ifname 'priv0'
-	option network 'priv'
-	option encryption 'psk2'
-	option key '<%= private_wifi_key %>'
-	option mode 'ap'
-	option ssid '<%= private_wifi_ssid %>'
+
