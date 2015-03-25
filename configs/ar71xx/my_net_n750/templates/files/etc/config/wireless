@@ -1,84 +1,84 @@
 
 # The 2.4 GHz radio
 config wifi-device 'radio0'
-	option type     mac80211
-	option channel  6
-	option txpower  '<%= tx_power %>'
+  option type     mac80211
+  option channel  6
+  option txpower  '<%= tx_power %>'
 
   option path     'platform/ar934x_wmac'
 
-	# hwmode now only accepts 11g or 11a
-	# and only affects 2.4 vs 5 GHz operation
-	# see https://dev.openwrt.org/ticket/17541
-	option hwmode	11g
+  # hwmode now only accepts 11g or 11a
+  # and only affects 2.4 vs 5 GHz operation
+  # see https://dev.openwrt.org/ticket/17541
+  option hwmode	11g
 
-	# This setting enables 802.11n and 20 MHz channel width
-	option htmode	HT20
+  # This setting enables 802.11n and 20 MHz channel width
+  option htmode	HT20
 
-	# MIMO transmit support
-	list ht_capab	TX-STBC
+  # MIMO transmit support
+  list ht_capab	TX-STBC
 
-	# RX-STBC1 means MIMO receive support for one spatial stream
-	# RX-STBC2 is for two streams, and so forth
-	# This should match the number of receive antennas
-	list ht_capab	RX-STBC2
+  # RX-STBC1 means MIMO receive support for one spatial stream
+  # RX-STBC2 is for two streams, and so forth
+  # This should match the number of receive antennas
+  list ht_capab	RX-STBC2
 
 # the open wifi ap 
 config wifi-iface
-	option device 'radio0'
-	option ifname 'open0'
-	option encryption 'none'
-	option network 'open'
-	option mode 'ap'
-	option ssid 'peoplesopen.net'
+  option device 'radio0'
+  option ifname 'open0'
+  option encryption 'none'
+  option network 'open'
+  option mode 'ap'
+  option ssid 'peoplesopen.net'
 
 # the private wpa2 interface
 config wifi-iface
-	option device 'radio0'
-	option ifname 'priv0'
-	option network 'priv'
-	option encryption 'psk2'
-	option key '<%= private_wifi_key %>'
-	option mode 'ap'
-	option ssid '<%= private_wifi_ssid %>'
+  option device 'radio0'
+  option ifname 'priv0'
+  option network 'priv'
+  option encryption 'psk2'
+  option key '<%= private_wifi_key %>'
+  option mode 'ap'
+  option ssid '<%= private_wifi_ssid %>'
 
 # The 5 GHz radio
 config wifi-device 'radio1'
-	option type     mac80211
-	option channel  157
+  option type     mac80211
+  option channel  157
   option txpower  '<%= tx_power %>'
 
   option path     'pci0000:00/0000:00:00.0'
 
-	# hwmode now only accepts 11g or 11a
-	# and only affects 2.4 vs 5 GHz operation
-	# see https://dev.openwrt.org/ticket/17541
-	option hwmode	11a
+  # hwmode now only accepts 11g or 11a
+  # and only affects 2.4 vs 5 GHz operation
+  # see https://dev.openwrt.org/ticket/17541
+  option hwmode	11a
 
   # Use a 40 MHz channel using specified 20 MHz channel and the next one up
-	option htmode	HT40+
+  option htmode	HT40+
 
-	# MIMO transmit support
-	list ht_capab	TX-STBC
+  # MIMO transmit support
+  list ht_capab	TX-STBC
 
-	# RX-STBC1 means MIMO receive support for one spatial stream
-	# RX-STBC2 is for two streams, and so forth
-	# This should match the number of receive antennas
-	list ht_capab	RX-STBC3
+  # RX-STBC1 means MIMO receive support for one spatial stream
+  # RX-STBC2 is for two streams, and so forth
+  # This should match the number of receive antennas
+  list ht_capab	RX-STBC3
 
 # the adhoc interface for the mesh
 config wifi-iface
-	option device 'radio1'
-	option ifname 'adhoc0'
-	option network 'adhoc'
- 	option encryption 'none'
-	option mode 'adhoc'
-	option bssid 'CA:FE:C0:DE:F0:0D'
+  option device 'radio1'
+  option ifname 'adhoc0'
+  option network 'adhoc'
+  option encryption 'none'
+  option mode 'adhoc'
+  option bssid 'CA:FE:C0:DE:F0:0D'
 	
-	# If bssid is set to the same for all nodes
-	# then ssid becomes irrelevant and there is no need to broadcast
-	# see: http://ml.ninux.org/pipermail/battlemesh/2013-June/002446.html
-	option ssid 'pplsopen.net-node2node'
-	option hidden '1'
+  # If bssid is set to the same for all nodes
+  # then ssid becomes irrelevant and there is no need to broadcast
+  # see: http://ml.ninux.org/pipermail/battlemesh/2013-June/002446.html
+  option ssid 'pplsopen.net-node2node'
+  option hidden '1'
 
 

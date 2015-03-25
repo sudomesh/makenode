@@ -96,7 +96,7 @@ var copyTemplates = function(path, callback) {
 /*
   Walks recursively through the configs/ tree
   and both copies templates and assembles the configs
-  into a single directory of templates and a singleconfig.
+  into a single directory of templates and a single config.
 
   Each dir or subdir or subsubdir (etc) can have:
     * A config.js file that exports a single function which
