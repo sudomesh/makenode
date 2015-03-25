@@ -2,8 +2,8 @@
 
 module.exports = function(u, hwInfo, callback) {
 
-  // this config only for 5GHz non-dual-band nodes
-  if(!u.is5GHz(hwInfo) || u.isDualBand(hwInfo)) {
+  if(true) {
+    console.error("Check for router model not implemented.");
     return callback(null, null);
   }
 
