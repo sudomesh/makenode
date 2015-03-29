@@ -11,7 +11,7 @@ MESHEXITIP=100.64.0.1
 INETEXITIP=104.236.181.226
 
 ETH=eth0.1
-OPEN=br-lan
+OPEN=br-openmesh
 PRIV=priv0
 TUN=l2tp0
 ADHOC=adhoc0
@@ -141,6 +141,8 @@ start() {
 
     sleep 30
     /etc/init.d/babeld restart
+
+    brctl addif br-openmesh open0
 
 }
 

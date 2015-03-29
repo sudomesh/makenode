@@ -46,7 +46,7 @@ config interface 'wan6'
   option ifname '@wan'
   option proto 'dhcpv6'
 
-config interface 'lan'
+config interface 'openmesh'
   option type 'bridge'
   option ifname 'eth0.2 open0'
   option proto 'static'
