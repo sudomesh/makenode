@@ -12,14 +12,12 @@ config dnsmasq
   option readethers 1
   option leasefile '/tmp/dhcp.leases'
   option resolvfile '/etc/resolv.conf.dnsmasq'
-  list interface 'open0'
+  list interface 'br-lan'
   list interface 'priv0'
-  list interface 'eth0.2'
-
 
 config 'dhcp' 'meshpool'
-  option interface 'open'
-  option networkid 'open0'
+  option interface 'lan'
+  option networkid 'br-lan'
   option start 2
   option limit 60
   option leasetime 5m
