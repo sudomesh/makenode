@@ -12,16 +12,15 @@ config dnsmasq
   option readethers 1
   option leasefile '/tmp/dhcp.leases'
   option resolvfile '/etc/resolv.conf.dnsmasq'
-  list interface 'open0'
+  list interface 'br-openmesh'
   list interface 'priv0'
-  list interface 'eth0.2'
 
 
 config 'dhcp' 'meshpool'
-  option interface 'open'
-  option networkid 'open0'
-  option start 2
-  option limit 60
+  option interface 'openmesh'
+  option networkid 'br-openmesh'
+  option start 7
+  option limit 55
   option leasetime 5m
   list dhcp_option '1,<%= open_subnet_ipv4_mask %>' # subnet mask
   list dhcp_option '3,<%= open_addr_ipv4 %>' # gateway

@@ -1,0 +1,151 @@
+#!/bin/sh /etc/rc.common
+
+START=90
+
+# TODO
+#  Add connection tracking helpers:
+#    https://home.regit.org/netfilter-en/secure-use-of-helpers/
+
+# TODO: We need to somehow detect this after the tunnel comes up
+MESHEXITIP=<%= exit_node_mesh_ipv4_addr %>
+INETEXITIP=<%= relay_node_inet_ipv4_addr %>
+
+WAN=eth0.1
+OPEN=br-openmesh
+PRIV=priv0
+TUN=l2tp0
+ADHOC=adhoc0
+
+LANNET=<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>
+MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>
+PRIVNET=172.30.0.0/24
+BADNET=10.0.0.0/24 # sometimes used by home routers
+
+LOCALNET1=192.168.0.0/16 
+LOCALNET2=10.0.0.0/8
+
+NODEIP=<%= mesh_addr_ipv4 %>
+PRIVIP=172.30.0.1
+
+start() {
+    iptables -F INPUT
+    iptables -P INPUT ACCEPT
+    iptables -F FORWARD
+    iptables -P FORWARD ACCEPT
+    iptables -t nat -F POSTROUTING
+    iptables -t mangle -F FORWARD 
+
+    # Enable IP masquerading for ethernet output (NAT)
+    iptables -t nat -A POSTROUTING -o $WAN -j MASQUERADE
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+
+    # Enable IP masquerading for private net access to mesh
+    iptables -t nat -A POSTROUTING -s $PRIVNET -d $MESHNET -j MASQUERADE 
+
+    # Only allow stuff from mesh to private if is part of
+    # an established connection and is from the mesh subnet
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $PRIVNET -s $MESHNET -j ACCEPT
+    iptables -A INPUT -s $MESHNET -d $PRIVNET -j DROP
+
+    # accept everything local
+    iptables -A INPUT -i lo -j ACCEPT
+
+    # ignore anything from or to 10.0.0.0/24
+    # since we don't use it for the net
+    # and some home routers use it per default
+    iptables -A INPUT -s $BADNET -j DROP
+    iptables -A INPUT -d $BADNET -j DROP
+
+    # allow packets from the open, mesh and priv interfaces as long as the IP's are correct
+    iptables -A INPUT -i $ADHOC -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $TUN -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $PRIV -s $PRIVNET -j ACCEPT
+    iptables -A INPUT -i $OPEN -s $MESHNET -j ACCEPT
+
+    # allow DHCP on open and priv
+    iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+    iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+
+
+    # allow established connections from internet, including on ethernet, l2tp and adhoc 
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $WAN -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ADHOC -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
+
+    iptables -A INPUT -i $WAN -s $LOCALNET1 -j ACCEPT
+    iptables -A INPUT -i $WAN -s $LOCALNET2 -j ACCEPT
+    iptables -P INPUT DROP
+
+    ### FORWARDING ###
+
+    # ignore anything from or to 10.0.0.0/24
+    # since we don't use it for the net
+    # and some home routers use it per default
+    iptables -A FORWARD -s $BADNET -j DROP
+    iptables -A FORWARD -d $BADNET -j DROP
+
+    # Allow traffic from mesh interfaces as long as it's not headed for privnet
+    iptables -A FORWARD -i $ADHOC -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $TUN -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $OPEN -s $MESHNET ! -d $PRIVNET -j ACCEPT
+
+    # Allow all traffic from privnet
+    iptables -A FORWARD -i $PRIV -s $PRIVNET -j ACCEPT
+
+    # allow forwarding of established connections from private
+    iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+    #iptables -A FORWARD -m state --state NEW -i $PRIV -j ACCEPT # TODO probably not needed
+
+    # No traffic from TUN to PRIV or from PRIV to TUN
+    iptables -A FORWARD -i $TUN -o $PRIV -j DROP
+    iptables -A FORWARD -i $PRIV -o $TUN -j DROP
+
+    # no mesh to internet forward (only through tunnel)
+    iptables -A FORWARD -i $ADHOC -o $WAN -j DROP
+    iptables -A FORWARD -i $TUN -o $WAN -j DROP
+    iptables -A FORWARD -i $OPEN -o $WAN -j DROP
+
+
+    iptables -t mangle -A FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+    iptables -t mangle -A FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+
+    iptables -P FORWARD DROP
+
+    # no internet to internet forward
+    iptables -A FORWARD -i $WAN -o $WAN -j DROP
+
+    ip route add $LANNET dev $OPEN  proto kernel  scope link  src $NODEIP table public
+
+    # We want private traffic to travel over the ethernet/main table
+    # but we want all other trafic to go over the mesh/public table
+    ip rule flush
+
+    ip rule add to $LANNET prio 13000 table public
+
+    ip rule add from $LOCALNET1 prio 14000 table main
+    ip rule add to $LOCALNET1 prio 14000 table main
+
+    ip rule add from $LOCALNET2 prio 14000 table main
+    ip rule add to $LOCALNET2 prio 14000 table main
+
+    ip rule add from $PRIVNET prio 14000 table main
+    ip rule add to $PRIVNET prio 14000 table main
+
+    ip rule add iif $PRIV prio 15000 table main
+    ip rule add to $INETEXITIP/32 prio 15000 table main
+
+    ip rule add from all prio 16000 table public
+
+    ip rule add from all prio 32766 table main 
+
+    ip route flush cache 
+
+    sleep 10
+    /etc/init.d/babeld restart
+
+}
+
+stop() {
+    # TODO implement stop
+    echo 
+}
