@@ -28,6 +28,11 @@ NODEIP=<%= mesh_addr_ipv4 %>
 PRIVIP=172.30.0.1
 
 start() {
+
+    # /etc/config/network isn't correctly adding open0 to the bridge
+    # TODO: figure out/fix
+    brctl addif $OPEN open0
+
     iptables -F INPUT
     iptables -P INPUT ACCEPT
     iptables -F FORWARD
