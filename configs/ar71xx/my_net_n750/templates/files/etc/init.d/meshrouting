@@ -120,8 +120,6 @@ start() {
     # but we want all other trafic to go over the mesh/public table
     ip rule flush
 
-    ip rule add to $LANNET prio 13000 table public
-
     ip rule add from $LOCALNET1 prio 14000 table main
     ip rule add to $LOCALNET1 prio 14000 table main
 
