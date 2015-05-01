@@ -584,7 +584,7 @@ var installIpk = function(conn, ipkPath, callback) {
                     // @@TODO: Have configs include list of post-install commands to run
                     // probably could just concat them with semicolons or maybe could just use
                     // async library to handle chaining of commands
-                    remoteCommand(conn, "/etc/init.d/meshrouting enable; /etc/init.d/babeld enable; /etc/init.d/polipo enable", function(err, stdout, stderr) { 
+                    remoteCommand(conn, "/etc/init.d/meshrouting enable; /etc/init.d/babeld enable", function(err, stdout, stderr) { 
                       if(err || stderr) {
                           var msg = "Error in post-install script. STDOUT: " + stdout + " STDERR: " + stderr;
                           console.log(msg);
