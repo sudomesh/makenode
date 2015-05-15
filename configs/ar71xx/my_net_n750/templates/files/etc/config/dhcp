@@ -14,6 +14,7 @@ config dnsmasq
   option resolvfile '/etc/resolv.conf.dnsmasq'
   list interface 'br-openmesh'
   list interface 'priv0'
+  list interface 'lo'
 
 
 config 'dhcp' 'meshpool'
