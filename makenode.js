@@ -12,6 +12,7 @@ var ssh2 = require('ssh2');
 var sslRootCAs = require('ssl-root-cas')
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
+var glob = require('glob');
 //var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
@@ -294,6 +295,22 @@ var createStageDirStructure = function(stageDir, callback) {
     });
 };
 
+var setPermissions = function(permissions, rootPath, callback) {
+    async.forEachOfSeries(permissions, function(bitmask, filePath, callback) {
+        if(filePath[0] == '/') {
+            filePath = filePath.slice(1);
+        }
+        var fullPath = path.join(rootPath, filePath);
+        glob(fullPath, function(err, files) {
+            if(err) return callback(err);
+            async.eachSeries(files, function(file, callback) {
+                fs.chmod(file, bitmask, callback);
+            }, callback);
+        });
+
+    }, callback);
+};
+
 var stage = function(stageDir, hwInfo, callback) {
     fs.remove(stageDir, function(err, stats) {
         createStageDirStructure(stageDir, function(err) {
@@ -314,8 +331,12 @@ var stage = function(stageDir, hwInfo, callback) {
                         console.log("compile");
                         compileTemplates(config, stageDir, function(err) {
                             if(err) return callback(err);
-                            
-                            callback(null);
+
+                            console.log("permissions");
+                            setPermissions(settings.permissions, path.join(stageDir, 'files'), function(err) {
+
+                                callback(null);
+                            })
                         });
                     });
                 });
@@ -540,7 +561,7 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
             if(err) return callback(err);
 
             console.log("IPK built");
-            if(settings.ipkOnly) {
+            if(settings.ipkOnly || argv.ipkOnly) {
                 return callback(null);
             }
             

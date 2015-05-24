@@ -31,4 +31,9 @@ module.exports = {
     // maintainer for generated ipk files
     ipkMaintainer: "sudo mesh <info@sudomesh.org>"
 
+    permissions: {
+        '/etc/dropbear': '0700',
+        '/etc/dropbear/*': '0600'
+    }
+
 };
