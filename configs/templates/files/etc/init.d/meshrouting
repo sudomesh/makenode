@@ -21,7 +21,7 @@ MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>
 PRIVNET=172.30.0.0/24
 BADNET=10.0.0.0/24 # sometimes used by home routers
 
-LOCALNET1=192.168.0.0/16 
+LOCALNET1=172.22.0.0/24
 LOCALNET2=10.0.0.0/8
 
 NODEIP=<%= mesh_addr_ipv4 %>
