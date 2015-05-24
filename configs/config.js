@@ -19,6 +19,11 @@ module.exports = function(u, hwInfo, callback) {
             name: u.askUser("Enter operator name or alias"),
             email: u.askUser("Enter operator email"),
             phone: null
+        }, 
+
+        permissions: {
+            '/etc/dropbear': '0700',
+            '/etc/dropbear/*': '0600'
         }
     };
 

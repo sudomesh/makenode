@@ -159,7 +159,7 @@ var copyAndRecurse = function(config, dir, hwInfo, callback) {
                             if(err) return callback(err);
                             
                             if(subConfig) {
-                                extend(config, subConfig);
+                                extend(true, config, subConfig);
                             }
                             callback();                                
                         });
@@ -304,6 +304,9 @@ var setPermissions = function(permissions, rootPath, callback) {
         glob(fullPath, function(err, files) {
             if(err) return callback(err);
             async.eachSeries(files, function(file, callback) {
+                if(!bitmask) {
+                    callback();
+                }
                 fs.chmod(file, bitmask, callback);
             }, callback);
         });
@@ -333,7 +336,7 @@ var stage = function(stageDir, hwInfo, callback) {
                             if(err) return callback(err);
 
                             console.log("permissions");
-                            setPermissions(settings.permissions, path.join(stageDir, 'files'), function(err) {
+                            setPermissions(config.permissions, path.join(stageDir, 'files'), function(err) {
 
                                 callback(null);
                             })
