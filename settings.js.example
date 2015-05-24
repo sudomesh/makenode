@@ -2,9 +2,8 @@
 module.exports = {
 
     // router IP
-    ip: '192.168.13.37',
+    ip: '172.22.0.1',
     port: '22',
-
 
     // ignore emacs-related files when compiling templates
     ignoreTemplates: [/.*~$/, /^#.*#$/],

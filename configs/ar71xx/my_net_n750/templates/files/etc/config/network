@@ -58,7 +58,7 @@ config interface 'wan'
 config interface 'wan2' 
   option ifname 'eth0.1'
   option proto 'static'
-  option ipaddr '192.168.13.37'
+  option ipaddr '172.22.0.1'
   option netmask '255.255.255.0'
 
 config interface 'wan6'
