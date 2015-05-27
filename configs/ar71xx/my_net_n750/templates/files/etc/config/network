@@ -4,6 +4,12 @@ config switch
   option reset '1'
   option enable_vlan '1'
 
+## #############
+##
+## TODO: Get this in line with the tp-link n600 config
+##
+## #############
+
 # The wan port (eth0.1)
 config switch_vlan
   option device 'switch0'
@@ -87,7 +93,7 @@ config interface 'adhoc'
   option netmask '<%= adhoc_subnet_ipv4_mask %>'
 
 # This will be our "peoplesopen.net" bridge
-config interface 'openmesh'
+config interface 'open'
   option type 'bridge'
   option ifname 'open0 eth0.2 eth0.3'
   option proto 'static'

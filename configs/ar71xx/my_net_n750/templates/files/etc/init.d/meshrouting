@@ -11,7 +11,7 @@ MESHEXITIP=<%= exit_node_mesh_ipv4_addr %>
 INETEXITIP=<%= relay_node_inet_ipv4_addr %>
 
 WAN=eth0.1
-OPEN=br-openmesh
+OPEN=br-open
 PRIV=priv0
 TUN=l2tp0
 ADHOC=adhoc0
@@ -142,7 +142,8 @@ start() {
     sleep 10
 
     # /etc/config/network isn't correctly adding open0 to the bridge
-    # TODO: figure out/fix
+    # As per this bug:
+    #  https://dev.openwrt.org/ticket/17262
     brctl addif $OPEN open0
 
     /etc/init.d/babeld restart

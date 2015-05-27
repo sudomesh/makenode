@@ -1,7 +1,7 @@
 config server
   option enabled '1'
-  list addresses 'eth0.1=100.64.2.2/32'
-  list addresses 'eth0.2=100.64.2.3/32'
+  list addresses 'eth0.1=100.64.2.2/26'
+  list addresses 'eth0.2=100.64.2.3/26'
   option hook_script '/opt/notdhcpserver/hook.sh'
   option ssl_cert '/etc/uhttpd.crt'
   option ssl_key '/etc/uhttpd.key'
