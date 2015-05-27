@@ -15,6 +15,9 @@ config wifi-device 'radio0'
 	# MIMO transmit support
 	list ht_capab	TX-STBC
 
+  # Support for transmission of at least 2x1 STBC
+  list ht_capab TX-STBC-2BY1
+
 	# RX-STBC1 means MIMO receive support for one spatial stream
 	# RX-STBC2 is for two streams, and so forth
 	# This should match the number of receive antennas

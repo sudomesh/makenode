@@ -11,6 +11,8 @@ config interface 'lan'
        option 'ipaddr' '172.22.0.1'
        option 'netmask' '255.255.255.0'
 
+# TODO This is the old way of aliasing
+# See: http://wiki.openwrt.org/doc/uci/network
 config 'alias' 
        option 'interface' 'lan'
        option proto 'dhcp'
