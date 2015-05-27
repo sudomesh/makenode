@@ -9,23 +9,11 @@ PASSWORD=$5 # The password that was handed out to $IFACE (on STATE="up" only)
 
 case $STATE in
     "up")
-        # 
-        
-
 
         ;;
 
 
     "down")
-        # TODO Remove interfaces from bridges
-
-        # TODO Remove bridges
-
-        # TODO Bring down wifi interfaces
-
-        # Remove the VLAN interfaces
-        ip link del dev $MESH_IFACE
-        ip link del dev $OPEN_IFACE
 
         ;;
 
