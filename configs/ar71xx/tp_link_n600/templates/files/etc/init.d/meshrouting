@@ -15,6 +15,7 @@ OPEN=br-open
 PRIV=priv0
 TUN=l2tp0
 ADHOC=adhoc0
+ADHOC=adhoc0
 
 LANNET=<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>
 MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>

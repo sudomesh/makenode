@@ -9,25 +9,25 @@ config switch
 #       LAN port 1 is switch port 4      
 
 # lan port 1 (switch port 4)
-# is on vlan 1 (eth0.1) tagged
+# is on vlan 11 (eth0.11) tagged
 config switch_vlan
   option device 'switch0'
-  option vlan '1'
+  option vlan '11'
   option ports '0t 4t'
 
 # lan port 2 (switch port 3)
-# is on vlan 2 (eth0.3) tagged
+# is on vlan 12 (eth0.12) tagged
 config switch_vlan
   option device 'switch0'
-  option vlan '2'
+  option vlan '12'
   option ports '0t 3t'
 
 # lan ports 3 and 4 (switch ports 1 and 2)
-# are both on vlan 5 (eth0.5) untagged
-# and lan ports 1 and 2 are on vlan 5 tagged
+# are both on vlan 10 (eth0.10) untagged
+# and lan ports 1 and 2 are on vlan 10 tagged
 config switch_vlan
   option device 'switch0'
-  option vlan '5'
+  option vlan '10'
 
   # port 0 is the internal CPU port
   # and 't' denotes that it is vlan tagged
@@ -56,15 +56,15 @@ config interface 'wan6'
   option ifname '@wan'
   option proto 'dhcpv6'
 
-config interface 'antenna1'
-  option ifname 'eth0.3'
+config interface 'ext1adhoc'
+  option ifname 'eth0.11'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
   option netmask '<%= adhoc_subnet_ipv4_bitmask %>'
 
-config interface 'antenna2'
-  option ifname 'eth0.4'
+config interface 'ext2adhoc'
+  option ifname 'eth0.12'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
@@ -80,7 +80,7 @@ config interface 'adhoc'
 # This will be our "peoplesopen.net" bridge
 config interface 'open'
   option type 'bridge'
-  option ifname 'open0 eth0.5'
+  option ifname 'open0 eth0.10'
   option proto 'static'
   option ipaddr '<%= open_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
