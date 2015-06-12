@@ -1,6 +1,32 @@
 var extend = require('node.extend');
+var Netmask = require('netmask').Netmask;
+
+// maximum number of extender nodes 
+// (this is how many IPs will be reserved
+var extender_node_max = 4;
 
 module.exports = function(u, hwInfo, callback) {
+
+    // calculate reserved extender node IPs
+    // and add them to nodeInfo
+    function calcExtenderNodeIPs(nodeInfo, cb) {
+        var subnet = new Netmask(nodeInfo.open_subnet_ipv4+'/'+nodeInfo.open_subnet_ipv4_bitmask);
+        var ips = [];
+        var i = 0;
+        subnet.forEach(function(ip) {
+            if(i++ == 0) return; // skip first IP
+            if(ips.length >= extender_node_max) {
+                return;
+            }
+            
+            ips.push(ip);
+            if(ips.length >= extender_node_max) {
+                return cb(null, extend(nodeInfo, {
+                    extender_node_ips: ips
+                }));
+            }
+        });
+    };
     
     var conf = {
         macAddr: u.macAddr(hwInfo),
@@ -30,14 +56,29 @@ module.exports = function(u, hwInfo, callback) {
     if (!u.hasOwnProperty('userConfig')) {
 	      u.createNodeInDB(function(err, nodeInfo) {
             if(err) return callback("Error creating node in remote node database: " + err);
+
+            calcExtenderNodeIPs(nodeInfo, function(err, nodeInfo) {
+                if(err) {
+                    return callback("Error calculating extender node IP addresses: " + err);
+                }
+                extend(conf, nodeInfo);
+                callback(null, conf);
+            });
 	          
-            extend(conf, nodeInfo);
-            callback(null, conf);
+
+
+
 	      });
     } else {
 	      console.log("offline mode. user configuration:");
-	      console.log(u.userConfig);
-	      extend(conf, u.userConfig)
-        callback(null, conf);
+
+        calcExtenderNodeIPs(u.userConfig, function(err, nodeInfo) {
+            if(err) {
+                return callback("Error calculating extender node IP addresses: " + err);
+            }
+            extend(conf, u.userConfig);
+            console.log(conf);
+            callback(null, conf);
+        });
     }    
 };

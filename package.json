@@ -26,6 +26,7 @@
     "ip": "^0.3.2",
     "ipk-builder": "0.0.6",
     "ncp": "~0.6.0",
+    "netmask": "^1.0.5",
     "node-uuid": "^1.4.1",
     "node.extend": "~1.1.0",
     "optimist": "~0.6.1",

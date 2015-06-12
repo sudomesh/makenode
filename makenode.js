@@ -13,7 +13,6 @@ var sslRootCAs = require('ssl-root-cas')
 var underscore = require('underscore');
 var IPKBuilder = require('ipk-builder');
 var glob = require('glob');
-//var UbiFlasher = require('ubi-flasher');
 var u = require('./u.js');
 
 var settings = require('./settings.js');
@@ -656,22 +655,24 @@ var configureNode = function(ip, port, password, callback) {
 if(argv.offline) {
     var uuid = require('node-uuid');
     var offlineData = require('./' + argv.offline);
-
+    
     if (!offlineData.hasOwnProperty('mesh_subnet_ipv4')) {
-	offlineData['mesh_subnet_ipv4'] = offlineData['mesh_addr_ipv4']
-	    .split('.')
-	    .slice(0,3)
-	    .concat('0')
-	    .join('.');
-	offlineData['mesh_subnet_ipv4_mask'] = '255.255.255.0';
-	offlineData['mesh_subnet_ipv4_bitmask'] = '24';
+	      offlineData['mesh_subnet_ipv4'] = offlineData['mesh_addr_ipv4']
+	          .split('.')
+	          .slice(0,3)
+	          .concat('0')
+	          .join('.');
+	      offlineData['mesh_subnet_ipv4_mask'] = '255.255.255.0';
+	      offlineData['mesh_subnet_ipv4_bitmask'] = '24';
     }
-
+    
     if (!offlineData.hasOwnProperty('id'))
-	offlineData['id'] = uuid.v4();
-
+	      offlineData['id'] = uuid.v4();
+    
     u.userConfig = offlineData;
 }
+
+
 
 if(argv.help || argv.h) {
     usage();
