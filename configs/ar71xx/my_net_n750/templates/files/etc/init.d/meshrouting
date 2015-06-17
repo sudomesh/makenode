@@ -10,7 +10,7 @@ START=90
 MESHEXITIP=<%= exit_node_mesh_ipv4_addr %>
 INETEXITIP=<%= relay_node_inet_ipv4_addr %>
 
-WAN=eth0.1
+WAN=eth0.5
 OPEN=br-open
 PRIV=priv0
 TUN=l2tp0
