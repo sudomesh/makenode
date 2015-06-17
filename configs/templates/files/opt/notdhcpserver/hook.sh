@@ -33,7 +33,7 @@ case $STATE in
 
         # remove the port from the br-open VLAN (VLAN 10)
         OLD_PORTS=$(swconfig dev switch0 vlan $OPEN_VLAN get ports)
-        NEW_PORTS=$(echo $OLD_PORTS | awk '{ sub(/ *${PORT}t? */, " ", $RESULT); print $RESULT }')
+        NEW_PORTS=$(echo $OLD_PORTS | awk -e "{ sub(/ *${PORT}t? */, \" \", \$RESULT); print \$RESULT }")
         swconfig dev switch0 vlan $OPEN_VLAN set ports "$NEW_PORTS"
 
         # change the port to be untagged (same VLAN)
