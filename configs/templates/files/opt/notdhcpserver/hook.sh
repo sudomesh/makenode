@@ -25,7 +25,8 @@ case $STATE in
         # apply the changes to the switch
         swconfig dev switch0 set apply
 
-        # TODO add interface to babel
+        # add interface to babeld
+        babeld -a $IFACE 
         ;;
 
 
@@ -42,7 +43,8 @@ case $STATE in
         # apply the changes to the switch
         swconfig dev switch0 set apply
 
-        # TODO remove interface from babel
+        # remove interface from babeld
+        babeld -x $IFACE 
         ;;
 
     *)

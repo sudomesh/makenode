@@ -216,7 +216,7 @@ start() {
 	# Parse filters separately, since we know which options we expect
 	config_foreach babel_filter filter
 	# Using multiple config files is supported since babeld 1.5.1
-	/usr/sbin/babeld -D -I "$pidfile" -c "$OTHERCONFIGFILE" -c "$CONFIGFILE" -g $DEBUGPORT
+	/usr/sbin/babeld -F -D -I "$pidfile" -c "$OTHERCONFIGFILE" -c "$CONFIGFILE" -g $DEBUGPORT
         # Wait for the pidfile to appear
 	for i in 1 2
 	do
