@@ -29,7 +29,7 @@ config wifi-device 'radio0'
 # the open wifi ap 
 config wifi-iface
   option device 'radio0'
-  option ifname 'open0'
+  option ifname 'open2'
   option encryption 'none'
   option network 'open'
   option mode 'ap'
@@ -38,12 +38,27 @@ config wifi-iface
 # the private wpa2 interface
 config wifi-iface
   option device 'radio0'
-  option ifname 'priv0'
+  option ifname 'priv2'
   option network 'priv'
   option encryption 'psk2'
   option key '<%= private_wifi_key %>'
   option mode 'ap'
   option ssid '<%= private_wifi_ssid %>'
+
+# the mesh interface on 2.4 ghz
+config wifi-iface
+  option device 'radio0'
+  option ifname 'mesh2'
+  option network 'mesh2'
+  option encryption 'none'
+  option mode 'adhoc'
+  option bssid 'CA:FE:C0:DE:F0:0D'
+                                                                       
+  # If bssid is set to the same for all nodes
+  # then ssid becomes irrelevant and there is no need to broadcast
+  # see: http://ml.ninux.org/pipermail/battlemesh/2013-June/002446.html
+  option ssid 'pplsopen.net-node2node'
+  option hidden '1'
 
 # The 5 GHz radio
 config wifi-device 'radio1'
@@ -72,11 +87,30 @@ config wifi-device 'radio1'
   # This should match the number of receive antennas
   list ht_capab	RX-STBC2
 
-# the adhoc interface for the mesh
+# the open wifi ap on 5 ghz                                                
+config wifi-iface                                                          
+  option device 'radio1'                                                   
+  option ifname 'open5'                                                    
+  option encryption 'none'                                                 
+  option network 'open'                                                    
+  option mode 'ap'                                                         
+  option ssid 'peoplesopen.net'                                            
+
+# the private wpa2 interface on 5 ghz
 config wifi-iface
   option device 'radio1'
-  option ifname 'adhoc0'
-  option network 'adhoc'
+  option ifname 'priv5'
+  option network 'priv'
+  option encryption 'psk2'
+  option key '<%= private_wifi_key %>'
+  option mode 'ap'
+  option ssid '<%= private_wifi_ssid %>'
+
+# the mesh interface for the mesh
+config wifi-iface
+  option device 'radio1'
+  option ifname 'mesh5'
+  option network 'mesh5'
   option encryption 'none'
   option mode 'adhoc'
   option bssid 'CA:FE:C0:DE:F0:0D'
@@ -90,5 +124,3 @@ config wifi-iface
 
   option ssid 'pplsopen.net-node2node'
   #option hidden '1'
-
-

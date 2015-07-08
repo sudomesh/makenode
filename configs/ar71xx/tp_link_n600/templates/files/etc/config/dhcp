@@ -13,8 +13,7 @@ config dnsmasq
   option leasefile '/tmp/dhcp.leases'
   option resolvfile '/etc/resolv.conf.dnsmasq'
   list interface 'br-open'
-  list interface 'priv0'
-
+  list interface 'br-priv'
 
 config 'dhcp' 'openpool'
   option interface 'open'
@@ -28,7 +27,7 @@ config 'dhcp' 'openpool'
 
 config 'dhcp' 'privatepool'
   option interface 'priv'
-  option networkid 'priv0'
+  option networkid 'br-priv'
   option start 10
   option limit 240
   option leasetime 30m

@@ -2,6 +2,7 @@
 config switch
   option name 'switch0'
   option reset '1'
+  option enable '1'
   option enable_vlan '1'
       
 # Note: LAN ports (as written on the back of the router)
@@ -33,6 +34,13 @@ config switch_vlan
   # http://wiki.openwrt.org/doc/uci/network/switch
   option ports '0t 1 2'
 
+# no lan ports are on vlan 11 (eth0.11)           
+# vlan 11 is used for the private network         
+config switch_vlan                                
+  option device 'switch0'                         
+  option vlan '11'                                
+  option ports '0t'
+
 config interface 'loopback'
   option ifname 'lo'
   option proto 'static'
@@ -55,22 +63,29 @@ config interface 'wan6'
   option ifname '@wan'
   option proto 'dhcpv6'
 
-config interface 'ext1adhoc'
+config interface 'ext1mesh'
   option ifname 'eth0.1'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
   option netmask '<%= adhoc_subnet_ipv4_bitmask %>'
 
-config interface 'ext2adhoc'
+config interface 'ext2mesh'
   option ifname 'eth0.2'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
   option netmask '<%= adhoc_subnet_ipv4_bitmask %>'
 
-config interface 'adhoc'
-  option ifname 'adhoc0'
+config interface 'mesh2'
+  option ifname 'mesh2'
+  option proto 'static'
+  option ipaddr '<%= adhoc_addr_ipv4 %>'
+  option dns '<%= exit_node_mesh_ipv4_addr %>'
+  option netmask '<%= adhoc_subnet_ipv4_mask %>'
+
+config interface 'mesh5'
+  option ifname 'mesh5'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
@@ -79,14 +94,15 @@ config interface 'adhoc'
 # This will be our "peoplesopen.net" bridge
 config interface 'open'
   option type 'bridge'
-  option ifname 'open0 eth0.10'
+  option ifname 'open2 open5 eth0.10'
   option proto 'static'
   option ipaddr '<%= open_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
   option netmask '<%= open_subnet_ipv4_mask %>'
-       
+
 config interface 'priv'
-  option ifname 'priv0'
+  option type 'bridge'
+  option ifname 'priv2 priv5 eth0.11'                   
   option proto 'static'
   option ipaddr '172.30.0.1'
-  option netmask '255.255.0.0'
+  option netmask '16'

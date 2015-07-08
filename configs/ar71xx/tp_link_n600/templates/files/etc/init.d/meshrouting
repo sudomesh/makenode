@@ -12,9 +12,10 @@ INETEXITIP=<%= relay_node_inet_ipv4_addr %>
 
 WAN=eth1 # The internet connection
 OPEN=br-open # The open peoplesopen.net SSID and ethernet ports
-PRIV=priv0 # The private WPA2 wifi SSID
+PRIV=br-priv # The private WPA2 wifi SSID
 TUN=l2tp0 # The tunnel
-ADHOC=adhoc0 # The mesh
+MESH2=mesh2 # The mesh on 2.4 ghz
+MESH5=mesh5 # The mesh on 5 ghz
 EXT1=eth0.1 # Extender node 1
 EXT2=eth0.2 # Extender node 2
 EXT3=eth0.3 # Extender node 3
@@ -54,7 +55,8 @@ start() {
     iptables -A INPUT -i lo -j ACCEPT
 
     # allow packets from the open, mesh and priv interfaces as long as the IP's are correct
-    iptables -A INPUT -i $ADHOC -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $MESH2 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $MESH5 -s $MESHNET -j ACCEPT
     iptables -A INPUT -i $TUN -s $MESHNET -j ACCEPT
     iptables -A INPUT -i $PRIV -s $PRIVNET -j ACCEPT
     iptables -A INPUT -i $OPEN -s $MESHNET -j ACCEPT
@@ -67,9 +69,10 @@ start() {
     iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
     iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
 
-    # allow established connections from internet, including on ethernet, l2tp and adhoc 
+    # allow established connections from internet, including on ethernet, l2tp and mesh
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $WAN -j ACCEPT
-    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ADHOC -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH2 -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH5 -j ACCEPT
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
 
     iptables -A INPUT -i $WAN -s $LOCALNET1 -j ACCEPT
@@ -78,7 +81,8 @@ start() {
     ### FORWARDING ###
 
     # Allow traffic from mesh interfaces as long as it's not headed for privnet
-    iptables -A FORWARD -i $ADHOC -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $MESH2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $MESH5 -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $TUN -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $OPEN -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $EXT1 -s $MESHNET ! -d $PRIVNET -j ACCEPT
@@ -98,7 +102,8 @@ start() {
     iptables -A FORWARD -i $PRIV -o $TUN -j DROP
 
     # no mesh to internet forward (only through tunnel)
-    iptables -A FORWARD -i $ADHOC -o $WAN -j DROP
+    iptables -A FORWARD -i $MESH2 -o $WAN -j DROP
+    iptables -A FORWARD -i $MESH5 -o $WAN -j DROP
     iptables -A FORWARD -i $TUN -o $WAN -j DROP
     iptables -A FORWARD -i $OPEN -o $WAN -j DROP
     iptables -A FORWARD -i $EXT1 -o $WAN -j DROP
