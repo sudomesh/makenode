@@ -13,7 +13,8 @@ console.log("---------------------------");
   }
 
   var conf = {
-
+    2_4_channel: 6,
+    5_channel: 157
   };
 
         
