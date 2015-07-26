@@ -75,6 +75,12 @@ start() {
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH5 -j ACCEPT
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
 
+    # allow notdhcp packets
+    iptables -A INPUT -i $EXT1 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT2 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT3 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT4 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+
     iptables -A INPUT -i $WAN -s $LOCALNET1 -j ACCEPT
     iptables -P INPUT DROP
 
