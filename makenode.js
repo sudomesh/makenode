@@ -219,7 +219,10 @@ var resolveAsyncParameters = function(config, callback) {
     }, function(err) {
         if(err) return callback(err);
 
-        callback(null, config);
+        u.updateNodeInDB(config, function(err, msg) {
+            if(err) return callback("Error updating node in remote node database: " + err);
+            callback(null, config);
+        });
     });
 };
 

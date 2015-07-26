@@ -179,6 +179,35 @@ module.exports = u = {
             if(!obj.data) return callback("Empty response returned from server");
             callback(null, obj.data);
         });
+    },
+
+    updateNodeInDB: function(node, callback) {
+        if(!node.id) return callback("cannot update node in DB without node ID");
+        request.put(settings.nodeDB.url + '/nodes/' + node.id, {
+            auth: {
+                user: settings.nodeDB.username,
+                pass: settings.nodeDB.password
+            }, 
+            form: {
+                data: JSON.stringify(node)
+            }
+        }, function(err, resp, body) {
+            if(err) return callback(err);
+            if(!body) return callback("No data returned from server");
+            try {
+                var obj = JSON.parse(body);
+            } catch(e) {
+                return callback("Invalid JSON returned from server: " + body);
+            }
+            if(obj.status != 'success') {
+                if(!obj.msg) {
+                    return callback("Server returned unspecified error");
+                }
+                return callback(obj.msg)
+            }
+            if(!obj.data) return callback("Empty response returned from server");
+            callback(null, obj.data);
+        });
     }
 
 
