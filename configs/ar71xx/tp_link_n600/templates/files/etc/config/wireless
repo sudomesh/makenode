@@ -2,7 +2,7 @@
 # The 2.4 GHz radio
 config wifi-device 'radio0'
   option type     mac80211
-  option channel  '<%= 2_4_channel %>'
+  option channel  '<%= channel_2_4 %>'
   option txpower  '<%= tx_power %>'
 
   option path     'platform/ar934x_wmac'
@@ -63,7 +63,7 @@ config wifi-iface
 # The 5 GHz radio
 config wifi-device 'radio1'
   option type     mac80211
-  option channel  '<%= 5_channel %>'
+  option channel  '<%= channel_5 %>'
   option txpower  '<%= tx_power %>'
 
   option path     'pci0000:00/0000:00:00.0'
