@@ -10,19 +10,22 @@ START=90
 MESHEXITIP=<%= exit_node_mesh_ipv4_addr %>
 INETEXITIP=<%= relay_node_inet_ipv4_addr %>
 
-WAN=eth0.5
-OPEN=br-open
-PRIV=priv0
-TUN=l2tp0
-ADHOC=adhoc0
+WAN=eth0.5 # The internet connection
+OPEN=br-open # The open peoplesopen.net SSID and ethernet ports
+PRIV=br-priv # The private WPA2 wifi SSID
+TUN=l2tp0 # The tunnel
+MESH2=mesh2 # The mesh on 2.4 ghz
+MESH5=mesh5 # The mesh on 5 ghz
+EXT1=eth0.1 # Extender node 1
+EXT2=eth0.2 # Extender node 2
+EXT3=eth0.3 # Extender node 3
+EXT4=eth0.4 # Extender node 4
 
 LANNET=<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>
 MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>
 PRIVNET=172.30.0.0/24
-BADNET=10.0.0.0/24 # sometimes used by home routers
 
-LOCALNET1=172.22.0.1/24
-LOCALNET2=10.0.0.0/8
+LOCALNET1=172.22.0.0/24
 
 NODEIP=<%= mesh_addr_ipv4 %>
 PRIVIP=172.30.0.1
@@ -51,44 +54,47 @@ start() {
     # accept everything local
     iptables -A INPUT -i lo -j ACCEPT
 
-    # ignore anything from or to 10.0.0.0/24
-    # since we don't use it for the net
-    # and some home routers use it per default
-    iptables -A INPUT -s $BADNET -j DROP
-    iptables -A INPUT -d $BADNET -j DROP
-
     # allow packets from the open, mesh and priv interfaces as long as the IP's are correct
-    iptables -A INPUT -i $ADHOC -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $MESH2 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $MESH5 -s $MESHNET -j ACCEPT
     iptables -A INPUT -i $TUN -s $MESHNET -j ACCEPT
     iptables -A INPUT -i $PRIV -s $PRIVNET -j ACCEPT
     iptables -A INPUT -i $OPEN -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT1 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT2 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT3 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -i $EXT4 -s $MESHNET -j ACCEPT
 
     # allow DHCP on open and priv
     iptables -A INPUT -i $PRIV -p udp --dport 67:68 --sport 67:68 -j ACCEPT
     iptables -A INPUT -i $OPEN -p udp --dport 67:68 --sport 67:68 -j ACCEPT
 
-
-    # allow established connections from internet, including on ethernet, l2tp and adhoc 
+    # allow established connections from internet, including on ethernet, l2tp and mesh
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $WAN -j ACCEPT
-    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $ADHOC -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH2 -j ACCEPT
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $MESH5 -j ACCEPT
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -i $TUN -j ACCEPT
 
+    # allow notdhcp packets
+    iptables -A INPUT -i $EXT1 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT2 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT3 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+    iptables -A INPUT -i $EXT4 -d 255.255.255.255 -p udp --dport 4242 --sport 4343 -j ACCEPT
+
     iptables -A INPUT -i $WAN -s $LOCALNET1 -j ACCEPT
-    iptables -A INPUT -i $WAN -s $LOCALNET2 -j ACCEPT
     iptables -P INPUT DROP
 
     ### FORWARDING ###
 
-    # ignore anything from or to 10.0.0.0/24
-    # since we don't use it for the net
-    # and some home routers use it per default
-    iptables -A FORWARD -s $BADNET -j DROP
-    iptables -A FORWARD -d $BADNET -j DROP
-
     # Allow traffic from mesh interfaces as long as it's not headed for privnet
-    iptables -A FORWARD -i $ADHOC -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $MESH2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $MESH5 -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $TUN -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $OPEN -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT1 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT3 -s $MESHNET ! -d $PRIVNET -j ACCEPT
+    iptables -A FORWARD -i $EXT4 -s $MESHNET ! -d $PRIVNET -j ACCEPT
 
     # Allow all traffic from privnet
     iptables -A FORWARD -i $PRIV -s $PRIVNET -j ACCEPT
@@ -102,9 +108,14 @@ start() {
     iptables -A FORWARD -i $PRIV -o $TUN -j DROP
 
     # no mesh to internet forward (only through tunnel)
-    iptables -A FORWARD -i $ADHOC -o $WAN -j DROP
+    iptables -A FORWARD -i $MESH2 -o $WAN -j DROP
+    iptables -A FORWARD -i $MESH5 -o $WAN -j DROP
     iptables -A FORWARD -i $TUN -o $WAN -j DROP
     iptables -A FORWARD -i $OPEN -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT1 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT2 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT3 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT4 -o $WAN -j DROP
 
 
     iptables -t mangle -A FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
@@ -124,9 +135,6 @@ start() {
     ip rule add from $LOCALNET1 prio 14000 table main
     ip rule add to $LOCALNET1 prio 14000 table main
 
-    ip rule add from $LOCALNET2 prio 14000 table main
-    ip rule add to $LOCALNET2 prio 14000 table main
-
     ip rule add from $PRIVNET prio 14000 table main
     ip rule add to $PRIVNET prio 14000 table main
 
@@ -139,12 +147,14 @@ start() {
 
     ip route flush cache 
 
+    /etc/init.d/tunneldigger restart
     sleep 10
 
     # /etc/config/network isn't correctly adding open0 to the bridge
     # As per this bug:
     #  https://dev.openwrt.org/ticket/17262
-    brctl addif $OPEN open0
+    brctl addif $OPEN open2
+    brctl addif $OPEN open5
 
     /etc/init.d/babeld restart
 

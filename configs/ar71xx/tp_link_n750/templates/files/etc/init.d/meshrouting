@@ -10,16 +10,16 @@ START=90
 MESHEXITIP=<%= exit_node_mesh_ipv4_addr %>
 INETEXITIP=<%= relay_node_inet_ipv4_addr %>
 
-WAN=eth1 # The internet connection
+WAN=eth0.1 # The internet connection
 OPEN=br-open # The open peoplesopen.net SSID and ethernet ports
 PRIV=br-priv # The private WPA2 wifi SSID
 TUN=l2tp0 # The tunnel
 MESH2=mesh2 # The mesh on 2.4 ghz
 MESH5=mesh5 # The mesh on 5 ghz
-EXT1=eth0.1 # Extender node 1
-EXT2=eth0.2 # Extender node 2
-EXT3=eth0.3 # Extender node 3
-EXT4=eth0.4 # Extender node 4
+EXT1=eth0.2 # Extender node 1
+EXT2=eth0.3 # Extender node 2
+EXT3=eth0.4 # Extender node 3
+EXT4=eth0.5 # Extender node 4
 
 LANNET=<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>
 MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>

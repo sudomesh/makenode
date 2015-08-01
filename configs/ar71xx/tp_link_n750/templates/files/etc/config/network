@@ -2,28 +2,36 @@
 config switch
   option name 'switch0'
   option reset '1'
+  option enable '1'
   option enable_vlan '1'
       
 # Note: LAN ports (as written on the back of the router)
-#       and switch ports are the same, such that 
-#       LAN port 1 is switch port 1      
-#       yellow WAN port (labeled "internet") is switch port 5
+#       and switch ports are aligned, such that 
+#       the "internet" port is 1 and continues to the right
 
-# lan port 1 (switch port 1)
+# wan port 1 (switch port 1)
 # is on vlan 1 (eth0.1) untagged
 config switch_vlan
   option device 'switch0'
   option vlan '1'
   option ports '0t 1'
 
-# lan port 2 (switch port 2)
+
+# lan port 1 (switch port 2)
 # is on vlan 2 (eth0.2) untagged
 config switch_vlan
   option device 'switch0'
   option vlan '2'
   option ports '0t 2'
 
-# lan ports 3 and 4 (switch ports 3 and 4)
+# lan port 2 (switch port 3)
+# is on vlan 2 (eth0.3) untagged
+config switch_vlan
+  option device 'switch0'
+  option vlan '3'
+  option ports '0t 3'
+
+# lan ports 3 and 4 (switch ports 4 and 5)
 # are both on vlan 10 (eth0.10) untagged
 config switch_vlan
   option device 'switch0'
@@ -32,7 +40,7 @@ config switch_vlan
   # port 0 is the internal CPU port
   # and 't' denotes that it is vlan tagged
   # http://wiki.openwrt.org/doc/uci/network/switch
-  option ports '0t 3 4'
+  option ports '0t 4 5'
 
 # no lan ports are on vlan 11 (eth0.11)           
 # vlan 11 is used for the private network         
@@ -41,17 +49,6 @@ config switch_vlan
   option vlan '11'                                
   option ports '0t'
 
-# The wan port (eth0.5)
-config switch_vlan
-  option device 'switch0'
-  option vlan '5'
-
-  # port 0 is the internal CPU port
-  # and 't' denotes that it is vlan tagged
-  # http://wiki.openwrt.org/doc/uci/network/switch
-  option ports '0t 5'
-
-
 config interface 'loopback'
   option ifname 'lo'
   option proto 'static'
@@ -59,13 +56,13 @@ config interface 'loopback'
   option netmask '255.0.0.0'
 
 config interface 'wan'
-  option ifname 'eth0.5'
+  option ifname 'eth0.1'
   option proto 'dhcp'
 
 # This is for development only
 # TODO We should remove the static IP before beta launch
 config interface 'wan2' 
-  option ifname 'eth0.5'
+  option ifname 'eth0.1'
   option proto 'static'
   option ipaddr '172.22.0.1'
   option netmask '255.255.255.0'
@@ -75,14 +72,14 @@ config interface 'wan6'
   option proto 'dhcpv6'
 
 config interface 'ext1mesh'
-  option ifname 'eth0.1'
+  option ifname 'eth0.2'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
   option netmask '<%= adhoc_subnet_ipv4_bitmask %>'
 
 config interface 'ext2mesh'
-  option ifname 'eth0.2'
+  option ifname 'eth0.3'
   option proto 'static'
   option ipaddr '<%= adhoc_addr_ipv4 %>'
   option dns '<%= exit_node_mesh_ipv4_addr %>'
