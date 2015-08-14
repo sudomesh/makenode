@@ -40,6 +40,8 @@ Copy and tweak settings file
 cp settings.js.example settings.js
 ```
 
+Add your public ssh key to `./configs/authorized_keys`
+
 # Usage
 
 ```
