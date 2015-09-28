@@ -23,8 +23,6 @@ config_cb() {
 }
 
 
-# TODO don't use ifconfig (it's deprecated)
-
 case "$STATUS" in
   session.up)
     echo "Received 'session.up' for interface ${IFACE}"
@@ -34,9 +32,22 @@ case "$STATUS" in
     config_load tunneldigger 
     /etc/init.d/snmpd restart
 
-    ;;
+    # Setting dhcp openpool mtu to appropriate value
+    mtu=$(ip addr show dev $IFACE | grep -w mtu | awk '{ print $5}')
+    prev_dhcp=$(uci get dhcp.openpool.dhcp_option)
+    stripped_dhcp=$(echo "${prev_dhcp}" | sed 's/[ ]*26,[0-9]\+//')
+    new_dhcp="$stripped_dhcp 26,$mtu"
+    uci set dhcp.openpool.dhcp_option="$new_dhcp"
+    uci commit
+
+    
   session.down)
     echo "Received 'session.down' for interface ${IFACE}"
+
+    prev_dhcp=$(uci get dhcp.openpool.dhcp_option)
+    stripped_dhcp=$(echo "${prev_dhcp}" | sed 's/[ ]*26,[0-9]\+//')
+    uci set dhcp.openpool.dhcp_option="$stripped_dhcp"
+    uci commit
 
 
     ;;
