@@ -26,6 +26,7 @@ config_cb() {
 case "$STATUS" in
   session.up)
     echo "Received 'session.up' for interface ${IFACE}"
+    logger "Received 'session.up' for interface ${IFACE}"
 
     ip link set $IFACE up
     ip addr add <%= mesh_addr_ipv4 %>/<%= tun_subnet_ipv4_bitmask %> dev $IFACE
@@ -34,21 +35,24 @@ case "$STATUS" in
 
     # Setting dhcp openpool mtu to appropriate value
     mtu=$(ip addr show dev $IFACE | grep -w mtu | awk '{ print $5}')
+    logger "New mtu=$mtu"
     prev_dhcp=$(uci get dhcp.openpool.dhcp_option)
     stripped_dhcp=$(echo "${prev_dhcp}" | sed 's/[ ]*26,[0-9]\+//')
     new_dhcp="$stripped_dhcp 26,$mtu"
+    logger "New dhcp value=$new_dhcp"
     uci set dhcp.openpool.dhcp_option="$new_dhcp"
     uci commit
 
+    ;;
     
   session.down)
     echo "Received 'session.down' for interface ${IFACE}"
+    logger "Received 'session.down' for interface ${IFACE}"
 
     prev_dhcp=$(uci get dhcp.openpool.dhcp_option)
     stripped_dhcp=$(echo "${prev_dhcp}" | sed 's/[ ]*26,[0-9]\+//')
     uci set dhcp.openpool.dhcp_option="$stripped_dhcp"
     uci commit
-
 
     ;;
 esac
