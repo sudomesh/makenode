@@ -148,16 +148,13 @@ start() {
     ip route flush cache 
 
     /etc/init.d/tunneldigger restart
-
-    ubus -t 20 wait_for network.interface
+    sleep 10
 
     # /etc/config/network isn't correctly adding open0 to the bridge
     # As per this bug:
     #  https://dev.openwrt.org/ticket/17262
     brctl addif $OPEN open2
     brctl addif $OPEN open5
-
-    ubus -t 20 wait_for network.interface
 
     /etc/init.d/babeld restart
 
