@@ -49,7 +49,7 @@ Usage: ./makenode.js
 
 Options:
   --firmware: Flash firmware before configuring. See ubi-flasher for relevant command line arguments.
-  --ip: Router IP address (default: 192.168.13.37)
+  --ip: Router IP address (default: 172.22.0.1)
   --port: SSH port (default: 22)
   --password: SSH root password (default: meshtheplanet)
   --detectOnly: Report hardware detection results and exit.
