@@ -9,7 +9,7 @@ START=90
 depends="/usr/share/sudomesh/wireless.sh"
 
 for file in /etc/sudomesh/*; do
-  depends=$depends $file
+  depends="$depends $file"
 done
 
 for file in $depends; do
@@ -17,7 +17,7 @@ for file in $depends; do
   then
     . "$file"
   else
-    log "$file does not exist. meshrouting depends on it"
+    logger "$file does not exist. meshrouting depends on it"
     exit 2
   fi
 done
@@ -142,7 +142,6 @@ start() {
     ip route flush cache 
 
     /etc/init.d/tunneldigger restart
-    sleep 10
 
     # /etc/config/network isn't correctly adding open0 to the bridge
     # As per this bug:
