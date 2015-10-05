@@ -17,7 +17,11 @@ module.exports = function(u, hwInfo, callback) {
   };
 
   if(hwInfo.model === 'WD My Net N750') {
+    conf.wan_interface = 'eth0.5';
     conf.streams_5g = 3;
+  } else if (hwInfo.model === 'WD My Net N600') {
+    conf.streams_5g = 2;
+    conf.wan_interface = 'eth1';
   }
 
   callback(null, conf);
