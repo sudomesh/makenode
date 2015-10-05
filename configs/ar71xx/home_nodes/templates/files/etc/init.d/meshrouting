@@ -142,6 +142,7 @@ start() {
     ip route flush cache 
 
     /etc/init.d/tunneldigger restart
+    sleep 10
 
     # /etc/config/network isn't correctly adding open0 to the bridge
     # As per this bug:
