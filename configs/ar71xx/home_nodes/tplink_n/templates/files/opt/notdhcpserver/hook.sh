@@ -13,7 +13,7 @@ PRIV_IFACE="br-priv" # The private bridge interface
 PRIV_VLAN="11" # The VLAN ID of the br-priv network
 
 VLAN=${IFACE##*.} # The VLAN ID of the receiving interface 
-PORT=$(expr "5" - "$VLAN") # The number of the receiving switch port
+PORT=$VLAN # The number of the receiving switch port
 
 case $STATE in
     "up")

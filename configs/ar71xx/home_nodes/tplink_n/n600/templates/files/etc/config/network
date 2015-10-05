@@ -48,13 +48,13 @@ config interface 'loopback'
   option netmask '255.0.0.0'
 
 config interface 'wan'
-  option ifname 'eth1'
+  option ifname '<%= wan_interface %>'
   option proto 'dhcp'
 
 # This is for development only
 # TODO We should remove the static IP before beta launch
 config interface 'wan2' 
-  option ifname 'eth1'
+  option ifname '<%= wan_interface %>'
   option proto 'static'
   option ipaddr '172.22.0.1'
   option netmask '255.255.255.0'
