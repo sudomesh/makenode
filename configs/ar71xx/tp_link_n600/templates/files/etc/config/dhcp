@@ -4,8 +4,8 @@ config dnsmasq
   option localise_queries 1
   option rebind_protection 1 # disable if upstream must serve RFC1918 addresses
   option rebind_localhost 1 # enable for RBL checking and similar services
-  option local '/sudomesh.org/'
-  option domain 'sudomesh.org'
+  option local '/local.sudomesh.org/'
+  option domain 'local.sudomesh.org'
   option expandhosts 1
   option nonegcache 0
   option authoritative 1
@@ -23,7 +23,6 @@ config 'dhcp' 'openpool'
   option leasetime 5m
   list dhcp_option '1,<%= open_subnet_ipv4_mask %>' # subnet mask
   list dhcp_option '3,<%= open_addr_ipv4 %>' # gateway
-  list dhcp_option '6,<%= exit_node_mesh_ipv4_addr %>' # DNS
 
 config 'dhcp' 'privatepool'
   option interface 'priv'
