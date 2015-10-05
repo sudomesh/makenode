@@ -12,6 +12,7 @@ module.exports = function(u, hwInfo, callback) {
         return callback(null, null);
     }
    
+    var conf = {};
     
     callback(null, conf);
 };
