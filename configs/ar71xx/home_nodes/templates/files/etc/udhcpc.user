@@ -1,0 +1,32 @@
+#!/bin/sh
+
+local ip_calc=$(ipcalc.sh $ip $subnet)
+
+logger $ip_calc
+
+cidr_prefix=$(echo $ip_calc | grep -o 'PREFIX=\([0-9]\+\)' | sed -n -e 's/PREFIX=//p');
+network=$(echo $ip_calc | grep -o 'NETWORK=\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)' | sed -n -e 's/NETWORK=//p');
+
+logger "network=$network"
+
+setup_rules() {
+  # To keep from continuously adding the same rule, we delete first
+  ip rule del from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule add from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule add to "$network"/"$cidr_prefix" prio 13000 table main
+}
+
+clear_rules() {
+  ip rule del from "$network"/"$cidr_prefix" prio 13000 table main
+  ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
+}
+
+case "$1" in
+  deconfig)
+    clear_rules
+  ;;
+  renew|bound)
+    setup_rules
+  ;;
+esac
