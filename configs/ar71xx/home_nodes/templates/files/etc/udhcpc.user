@@ -15,6 +15,8 @@ setup_rules() {
   ip rule del to "$network"/"$cidr_prefix" prio 13000 table main
   ip rule add from "$network"/"$cidr_prefix" prio 13000 table main
   ip rule add to "$network"/"$cidr_prefix" prio 13000 table main
+
+  /etc/init.d/tunneldigger restart
 }
 
 clear_rules() {
