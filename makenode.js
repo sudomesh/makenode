@@ -555,6 +555,13 @@ var detectAndStage = function(conn, callback) {
         var templateStageDir = path.resolve(settings.templateStageDir);
         var stageDir = path.resolve(settings.stageDir);
 
+        if (settings.cleanStaging) {
+            console.log('cleaning ' + stageDir);
+            fs.rmrfSync(path.join(stageDir, 'files'));
+            console.log('cleaning ' + templateStageDir);
+            fs.rmrfSync(path.join(templateStageDir, 'files'));
+        }
+
         stage(stageDir, hwInfo, function(err, stageDir) {
             if(err) return callback(err);
             console.log("finished staging");

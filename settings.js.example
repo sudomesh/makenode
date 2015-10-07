@@ -11,6 +11,9 @@ module.exports = {
     // The root password for the newly configured routers
     rootPassword: 'meshtheplanet',
 
+    // Clean templateStageDir and stageDir before running makenode
+    cleanStaging: true,
+
     // settings for connection to the meshnode-database
     // https://github.com/sudomesh/meshnode-database
     nodeDB: {
