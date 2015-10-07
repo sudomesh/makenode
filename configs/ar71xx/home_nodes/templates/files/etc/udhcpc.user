@@ -48,7 +48,7 @@ test_connection() {
 
   while [ "$tries" -lt "$max_tries" ]; do
     logger "pinging $MESHEXITIP"
-    if /bin/ping -c 1 -w "$ping_time" "$MESHEXITIP" > /dev/null; then
+    if /bin/ping -c 1 -w "$ping_time" -I "$TUN" "$MESHEXITIP" > /dev/null; then
       logger "Got pong back from $MESHEXITIP"
       connected=true
       break
