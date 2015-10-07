@@ -30,6 +30,7 @@ module.exports = function(u, hwInfo, callback) {
     
     var conf = {
         macAddr: u.macAddr(hwInfo),
+        openwrtVersionString: hwInfo.openwrtVersionString,
         host_name: u.askUser("Enter valid hostname"), 
         user_name: 'admin', // web gui admin user name
         upstream_bw: u.askUser("Enter max shared upstream bandwidth in kbits"),

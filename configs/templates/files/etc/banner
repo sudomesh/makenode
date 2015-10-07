@@ -9,9 +9,8 @@
                                         :                             : 
  -------------------------------------------------------------------------
  sudo mesh v0.2 (fledgling)
-                              based on OpenWRT 14.07 (Barrier Breaker)
+                              based on <%= openwrtVersionString %>
  -------------------------------------------------------------------------
  “When your rage is choking you, it is best to say nothing.” 
                                             - Octavia E. Butler, Fledgling
  -------------------------------------------------------------------------
-
