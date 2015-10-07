@@ -39,10 +39,12 @@ clear_rules() {
 test_connection() {
   local tries
   local ping_time
+  local retry_pause
   local max_tries
   local connected
   tries=0
   ping_time=5
+  retry_pause=5
   max_tries=20
   connected=false
 
@@ -54,6 +56,7 @@ test_connection() {
       break
     fi
 
+    sleep $retry_pause
     tries=`expr $tries + 1`
   done
 
