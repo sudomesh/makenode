@@ -370,6 +370,25 @@ var getRadioInfo = function(conn, radios, callback, i) {
     });
 };
 
+var getOpenwrtVersion = function(conn, callback) {
+
+    var cmd = 'cat /etc/banner';
+    remoteCommand(conn, cmd, function(err, banner, stderr) {
+        if(err || typeof banner !== 'string') return callback(err);
+        var versionString;
+
+        if (banner.toLowerCase().indexOf('barrier') !== -1) {
+            versionString = 'OpenWRT 14.07 (Barrier Breaker)';
+        } else if (banner.toLowerCase().indexOf('chaos') !== -1) {
+            versionString = 'OpenWRT 15.05 (Chaos Calmer)';
+        } else {
+            versionString = "OpenWRT";
+        }
+        callback(null, versionString);
+    });
+};
+
+
 var parseChanLine = function(chanLine) {
     var chan = {};
     var m = chanLine.match(/\(.*?\)/g);
@@ -502,7 +521,14 @@ var detectHardware = function(conn, callback) {
                 if(err) {
                     return callback("Failed to detect radio capabilities: " +  err);
                 }
-                callback(null, hwInfo);
+                getOpenwrtVersion(conn, function(err, versionString) {
+                    if (err) {
+                        return callback("Failed to get openwrt version string " +  err);
+                    }
+                    hwInfo.openwrtVersionString = versionString;
+                    console.log("Version string = " + versionString);
+                    callback(null, hwInfo);
+                });
             });
         });
     });

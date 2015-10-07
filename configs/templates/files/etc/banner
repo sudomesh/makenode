@@ -9,7 +9,7 @@
                                         :                             : 
  -------------------------------------------------------------------------
  sudo mesh v0.2 (fledgling)
-                              based on <%= hwInfo.openwrtVersionString %>
+                              based on <%= openwrtVersionString %>
  -------------------------------------------------------------------------
  “When your rage is choking you, it is best to say nothing.” 
                                             - Octavia E. Butler, Fledgling
