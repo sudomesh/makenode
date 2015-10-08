@@ -640,10 +640,6 @@ var installIpk = function(conn, ipkPath, callback) {
                     callback(msg);
                 } else {
                     console.log("IPK installed successfully");
-                    // @@TODO: Have configs include list of post-install commands to run
-                    // probably could just concat them with semicolons or maybe could just use
-                    // async library to handle chaining of commands
-                    
                     remoteCommand(conn, "/sbin/reboot", function(err, stdout, stderr) {
                         console.log("Rebooting");
                         callback(null);
