@@ -137,7 +137,8 @@ module.exports = u = {
     // returns the OpenWRT chipset types like 'ar71xx' or 'atheros'
     // instead of stuff like 'Atheros AR7241 rev 1'
     chipsetType: function(hwInfo) {
-        if(hwInfo.chipset.match(/\s+AR[79]\d\d\d/)) {
+        if(hwInfo.chipset.match(/\s+AR[79]\d\d\d/) ||
+           hwInfo.chipset.match(/\s+QCA9558/)) { // Tp-Link Archer C7 V2
             return 'ar71xx';
         }
         if(hwInfo.chipset.match(/\s+AR2\d\d\d/)) {
