@@ -120,6 +120,9 @@ start() {
 
     waitForWifi
 
+    iw open2 set bitrates legacy-2.4 6 9 12 18 24 36 48 54
+    iw open5 set bitrates legacy-5 6 9 12 18 24 36 48 54
+
     ip route add $LANNET dev $OPEN  proto kernel  scope link  src $NODEIP table public
 
     # We want private traffic to travel over the ethernet/main table
