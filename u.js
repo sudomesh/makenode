@@ -134,14 +134,14 @@ module.exports = u = {
         return hwInfo.radios[0].macAddr;
     },
 
-    // returns the OpenWRT chipset types like 'ar71xx' or 'atheros'
+    // returns the OpenWRT chipset types like 'ar71xx' or 'ath25'
     // instead of stuff like 'Atheros AR7241 rev 1'
     chipsetType: function(hwInfo) {
         if(hwInfo.chipset.match(/\s+AR[79]\d\d\d/)) {
             return 'ar71xx';
         }
         if(hwInfo.chipset.match(/\s+AR2\d\d\d/)) {
-            return 'atheros';
+            return 'ath25';
         }
         return null;
     },
