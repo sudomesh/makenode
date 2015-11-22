@@ -1,5 +1,11 @@
 #!/bin/sh
 
+depends=""
+
+for file in /etc/sudomesh/*; do
+  depends="$depends $file"
+done
+
 STATE=$1 # "up" when an ACK was received or "down" on physical disconnect
 IFACE=$2 # The interface that received the ACK or physical disconnect
 IP=$3 # The IP that was handed out to the $IFACE
@@ -13,7 +19,13 @@ PRIV_IFACE="br-priv" # The private bridge interface
 PRIV_VLAN="11" # The VLAN ID of the br-priv network
 
 VLAN=${IFACE##*.} # The VLAN ID of the receiving interface 
-PORT=$VLAN # The number of the receiving switch port
+
+PORT=$(swconfig dev switch0 vlan $VLAN get ports)
+PORT=$(echo $PORT | awk -e "{ sub(/ *0t? */, \"\", \$RESULT); print \$RESULT }")
+PORT=$(echo $PORT | awk -e "{ sub(/t/, \"\", \$RESULT); print \$RESULT }")
+
+log "PORT=$PORT"
+log "VLAN=$VLAN"
 
 case $STATE in
     "up")
