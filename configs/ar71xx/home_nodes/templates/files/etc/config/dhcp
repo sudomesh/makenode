@@ -23,6 +23,7 @@ config 'dhcp' 'openpool'
   option leasetime 5m
   list dhcp_option '1,<%= open_subnet_ipv4_mask %>' # subnet mask
   list dhcp_option '3,<%= open_addr_ipv4 %>' # gateway
+  list dhcp_option '6,<%= open_addr_ipv4 %>' # dns server
 
 config 'dhcp' 'privatepool'
   option interface 'priv'
