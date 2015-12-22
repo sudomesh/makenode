@@ -43,6 +43,9 @@ start() {
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $PRIVNET -s $MESHNET -j ACCEPT
     iptables -A INPUT -s $MESHNET -d $PRIVNET -j DROP
 
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $LOCALNET1 -s $MESHNET -j ACCEPT
+    iptables -A INPUT -s $MESHNET -d $LOCALNET1 -j DROP
+
     # accept everything local
     iptables -A INPUT -i lo -j ACCEPT
 
