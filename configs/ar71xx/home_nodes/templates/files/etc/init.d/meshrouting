@@ -121,6 +121,12 @@ start() {
     # no internet to internet forward
     iptables -A FORWARD -i $WAN -o $WAN -j DROP
 
+    # if ebtables, prevent rogue dhcp servers
+    if command -v ebtables; then
+      ebtables -F FORWARD
+      ebtables -I FORWARD -p ipv4 --in-interface $OPEN --out-interface $OPEN --ip-protocol udp --ip-source-port 67:68 --ip-destination-port 67:68 --jump DROP
+    fi
+
     waitForWifi
 
     iw open2 set bitrates legacy-2.4 6 9 12 18 24 36 48 54
