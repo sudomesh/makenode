@@ -25,6 +25,9 @@ module.exports = {
     // where templates are staged before compilation
     templateStageDir: 'templateStaging',
 
+    // length of automatically generated passwords
+    passLength: 20,
+
     // where final files are staged before being packaged into an ipk
     stageDir: 'staging',
 

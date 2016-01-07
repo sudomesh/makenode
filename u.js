@@ -26,7 +26,7 @@ module.exports = u = {
 
     askPassword: function(prompt, passLength, opts) {
         opts = opts || {};
-        passLength = passLength || 10;
+        passLength = passLength || settings.passLength || 20;
 
         opts.noAnswer = function() {
             return this.generatePassword(passLength, true);
@@ -60,6 +60,7 @@ module.exports = u = {
                 if(!answer) {
                     if(opts.noAnswer) {
                         answer = opts.noAnswer();
+                        console.log(answer);
                     }
                 }
                 if(!answer && !opts.optional) {
