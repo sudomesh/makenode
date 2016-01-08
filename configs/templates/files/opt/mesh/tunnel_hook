@@ -10,6 +10,8 @@ config_cb() {
 	local cfg="$CONFIG_SECTION"
   config_get configname "$cfg" TYPE
 
+
+
   case "$configname" in
     broker)
       config_get limit_bw_up "$cfg" limit_bw_up
@@ -17,6 +19,8 @@ config_cb() {
       tc qdisc del dev $IFACE root
       tc qdisc add dev $IFACE root handle 1: htb default 1
       tc class add dev $IFACE parent 1: classid 1:1 htb rate $limit_bw_up ceil $limit_bw_up
+      tc qdisc add dev $IFACE parent 1:1 fq_codel
+
 
     ;;
   esac
