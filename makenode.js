@@ -38,7 +38,7 @@ var usage = function() {
     console.error("  --password: SSH root password (default: "+settings.rootPassword+")")
     console.error("  --detectOnly: Report hardware detection results and exit.")
     console.error("  --detectOnlyJSON <file>: Write hardware detection results in JSON format to file and exit.")
-    console.error("  --hwInfo <file>: Read hardware info results from file instead of detecting.")
+    console.error("  --hwInfo <file>: Read hardware info results from file instead of detecting. Implies --ipkOnly")
     console.error("  --offline (<file>): Prompt user for the parameters usually provided by the meshnode database, or read from file.")
     console.error("  --ipkOnly: Generate .ipk file but don't automatically upload or install to node.")
     console.error('');
@@ -652,6 +652,19 @@ var installIpk = function(conn, ipkPath, callback) {
 };
 
 var configureNode = function(ip, port, password, callback) {
+
+    if(argv.ipkOnly && argv.hwInfo) {
+        console.log("Not connecting to device at all since both --ipkOnly and --hwInfo specified");
+        detectAndStage(null, function(err, stageDir, hwInfo) {
+            if(err) return callback(err);
+            packageAndInstall(null, settings.stageDir, hwInfo, function(err) {
+                if(err) return callback("package and install failed: " + err);
+                callback();
+            });
+        });
+        return;
+    } 
+
     console.log("Connecting to node at " + ip + " using ssh on port " + port);
     var conn = new ssh2();
     conn
@@ -733,5 +746,10 @@ if(argv.firmware) {
         configure();
     });
 } else {
+    if(argv.hwInfo) {
+        console.log("--hwInfo specified so assuming --ipkOnly");
+        argv.ipkOnly = true;
+    }
+
     configure();
 }
