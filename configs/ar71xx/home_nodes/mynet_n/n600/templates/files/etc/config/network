@@ -9,22 +9,23 @@ config switch
 #       LAN port 1 is switch port 1      
 #       yellow WAN port (labeled "internet") is switch port 5
 
-# lan port 1 (switch port 1)
+# physical lan port 1 (switch port 1)
 # is on vlan 1 (eth0.1) untagged
 config switch_vlan
   option device 'switch0'
   option vlan '1'
   option ports '0t 1'
 
-# lan port 2 (switch port 2)
+# physical lan port 2 (switch port 2)
 # is on vlan 2 (eth0.2) untagged
 config switch_vlan
   option device 'switch0'
   option vlan '2'
   option ports '0t 2'
 
-# lan ports 3 and 4 (switch ports 3 and 4)
-# are both on vlan 10 (eth0.10) untagged
+# physical lan port 4 (switch port 4)
+# is on vlan 10 (eth0.10) untagged
+# vlan 10 is used for the public network
 config switch_vlan
   option device 'switch0'
   option vlan '10'
@@ -32,14 +33,15 @@ config switch_vlan
   # port 0 is the internal CPU port
   # and 't' denotes that it is vlan tagged
   # http://wiki.openwrt.org/doc/uci/network/switch
-  option ports '0t 3 4'
+  option ports '0t 4'
 
-# no lan ports are on vlan 11 (eth0.11)           
+# physical lan port 3 (switch port 3)
+# is on vlan 11 (eth0.11) untagged
 # vlan 11 is used for the private network         
-config switch_vlan                                
-  option device 'switch0'                         
-  option vlan '11'                                
-  option ports '0t'
+config switch_vlan                
+  option device 'switch0'
+  option vlan '11'
+  option ports '0t 3'
 
 config interface 'loopback'
   option ifname 'lo'

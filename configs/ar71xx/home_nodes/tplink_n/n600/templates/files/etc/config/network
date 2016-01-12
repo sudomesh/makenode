@@ -9,22 +9,24 @@ config switch
 #       and switch ports are reversed, such that 
 #       LAN port 1 is switch port 4      
 
-# lan port 1 (switch port 4)
+# physical lan port 1 (switch port 4)
 # is on vlan 1 (eth0.1) untagged
 config switch_vlan
   option device 'switch0'
   option vlan '1'
   option ports '0t 4'
 
-# lan port 2 (switch port 3)
+# physical lan port 2 (switch port 3)
 # is on vlan 2 (eth0.2) untagged
 config switch_vlan
   option device 'switch0'
   option vlan '2'
   option ports '0t 3'
 
-# lan ports 3 and 4 (switch ports 1 and 2)
-# are both on vlan 10 (eth0.10) untagged
+
+# physical lan port 4 (switch port 1)
+# is on vlan 10 (eth0.10) untagged
+# vlan 10 is used for the public network
 config switch_vlan
   option device 'switch0'
   option vlan '10'
@@ -32,14 +34,15 @@ config switch_vlan
   # port 0 is the internal CPU port
   # and 't' denotes that it is vlan tagged
   # http://wiki.openwrt.org/doc/uci/network/switch
-  option ports '0t 1 2'
+  option ports '0t 1'
 
-# no lan ports are on vlan 11 (eth0.11)           
-# vlan 11 is used for the private network         
+# physical lan port 3 (switch port 2)
+# is on vlan 11 (eth0.11) untagged
+# vlan 11 is used for the private network
 config switch_vlan                                
   option device 'switch0'                         
   option vlan '11'                                
-  option ports '0t'
+  option ports '0t 2'
 
 config interface 'loopback'
   option ifname 'lo'
