@@ -5,7 +5,7 @@ var exec = require('child_process').exec;
 var util = require('util');
 var fs = require('fs.extra');
 var extend = require('node.extend');
-var ncp = require('ncp');
+var cpr = require('cpr');
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
@@ -65,13 +65,13 @@ var genSSHKeys = function(outputDir, callback) {
     console.log("Generating SSH keys");
     fs.mkdirp(outputDir, function(err) {
         if(err) return callback(err);
-        
+
         exec("dropbearkey -t rsa -f dropbear_rsa_host_key -s 2048", {
             cwd: outputDir
         }, function(err, stdout, stderr) {
             if(err) return callback(err);
             exec("dropbearkey -t dss -f dropbear_dss_host_key", {
-                cwd: outputDir            
+                cwd: outputDir
             }, function(err, stdout, stderr) {
                 if(err) return callback(err);
                 callback(null);
@@ -88,7 +88,7 @@ var copyTemplates = function(path, callback) {
             if(err) return callback(err);
 
             console.log("adding templates from: " + path);
-            ncp(path, settings.templateStageDir, callback);
+            cpr(path, settings.templateStageDir, callback);
         });
     });
 }
@@ -101,14 +101,14 @@ var copyTemplates = function(path, callback) {
   Each dir or subdir or subsubdir (etc) can have:
     * A config.js file that exports a single function which
       takes one argument: A hwInfo object describing the router hardware
-      and returns false if it believes the current dir does not contain 
+      and returns false if it believes the current dir does not contain
       anything pertaining to the router hardware, or a config object
       which overrides or appends keys and values with hardware specific
       configurations. The config object values returned by config objects
-      of config.js files from deeper subdirs overrides the values from 
+      of config.js files from deeper subdirs overrides the values from
       shallower config.js objects, such that the shallowest config.js
       defines the most common configuration.
-     
+
     * A templates dir with three subdirs:
       * config_files
       * files
@@ -117,7 +117,7 @@ var copyTemplates = function(path, callback) {
       These are all copied to a staging directory with the files from
       deeper nested templates subdirs override the files from shallower
       templates subdirs.
-      
+
 */
 var stageTemplatesAndConfig = function(dir, hwInfo, callback) {
     dir = path.resolve(dir);
@@ -156,11 +156,11 @@ var copyAndRecurse = function(config, dir, hwInfo, callback) {
                     } else {
                         stageTemplatesAndConfig(subDir, hwInfo, function(err, subConfig) {
                             if(err) return callback(err);
-                            
+
                             if(subConfig) {
                                 extend(true, config, subConfig);
                             }
-                            callback();                                
+                            callback();
                         });
                     }
                 });
@@ -209,7 +209,7 @@ var setNestedProp = function(obj, keys, value) {
 var resolveAsyncParameters = function(config, callback) {
     var asyncParams = findAsyncParams(config);
     async.eachSeries(asyncParams, function(param, callback) {
-        
+
         param.param.run(function(err, value) {
             if(err) return callback(err);
             setNestedProp(config, param.keys, value);
@@ -242,7 +242,7 @@ var compileTemplate = function(config, fromTemplate, toFile, callback) {
                 fs.writeFile(toFile, compiledData, {
                     mode: stats.mode
                 }, callback);
-                
+
             });
         });
     });
@@ -252,7 +252,7 @@ var compileTemplate = function(config, fromTemplate, toFile, callback) {
 var compileTemplates = function(config, stageDir, callback) {
 
     var walker = fs.walk(settings.templateStageDir);
-    
+
     walker.on('node', function (root, stats, next) {
         var filepath = path.join(root, stats.name);
         var i; // check if file should be ignored
@@ -264,7 +264,7 @@ var compileTemplates = function(config, stageDir, callback) {
         }
         if(stats.isDirectory()) {
             fs.mkdirp(filepath, function(err) {
-                if(err) return callback(err);    
+                if(err) return callback(err);
                 next();
             });
         } else {
@@ -283,13 +283,13 @@ var compileTemplates = function(config, stageDir, callback) {
 
 var createStageDirStructure = function(stageDir, callback) {
     fs.mkdirp(stageDir, function(err) {
-        if(err) return callback(err);  
+        if(err) return callback(err);
         // TODO async'ify
-        fs.mkdirp(path.join(stageDir, 'files'), function(err) {   
-            if(err) return callback(err);  
-            fs.mkdirp(path.join(stageDir, 'config_files'), function(err) {   
-                if(err) return callback(err);  
-                fs.mkdirp(path.join(stageDir, 'postscripts'), function(err) {   
+        fs.mkdirp(path.join(stageDir, 'files'), function(err) {
+            if(err) return callback(err);
+            fs.mkdirp(path.join(stageDir, 'config_files'), function(err) {
+                if(err) return callback(err);
+                fs.mkdirp(path.join(stageDir, 'postscripts'), function(err) {
                     callback(null);
                 });
             });
@@ -319,7 +319,7 @@ var setPermissions = function(permissions, rootPath, callback) {
 var stage = function(stageDir, hwInfo, callback) {
     fs.remove(stageDir, function(err, stats) {
         createStageDirStructure(stageDir, function(err) {
-            if(err) return callback(err);  
+            if(err) return callback(err);
 
             genSSHKeys(path.join(stageDir, 'files', 'etc', 'dropbear'), function(err) {
                 if(err) return callback(err);
@@ -328,11 +328,11 @@ var stage = function(stageDir, hwInfo, callback) {
                 // stage templates and config for "compilation"
                 stageTemplatesAndConfig('configs', hwInfo, function(err, config) {
                     if(err) return callback(err);
-                    
+
                     console.log("resolve");
                     resolveAsyncParameters(config, function(err, config) {
                         if(err) return callback(err);
-                        
+
                         console.log("compile");
                         compileTemplates(config, stageDir, function(err) {
                             if(err) return callback(err);
@@ -444,7 +444,7 @@ var getHWInfo = function(conn, cpuInfo, wifiInfo, callback) {
         var radio = {
             name: m[0]
         };
-        
+
         m = phyText.match(/Capabilities:.*\n\s+([\s\S]+?)\n\t\t\w/);
         if(m && m.length > 1) {
             radio.capabilities = m[1].split(/\n\s+/);
@@ -534,7 +534,7 @@ var detectHardware = function(conn, callback) {
     });
 };
 
-// detect hardware and stage 
+// detect hardware and stage
 var detectAndStage = function(conn, callback) {
     detectHardware(conn, function(err, hwInfo) {
         if(err) return callback(err);
@@ -547,7 +547,7 @@ var detectAndStage = function(conn, callback) {
         if(argv.detectOnlyJSON) {
             fs.writeFile(argv.detectOnlyJSON, JSON.stringify(hwInfo), function(err) {
                 if(err) return callback(err);
-                process.exit(); 
+                process.exit();
             });
             return;
         }
@@ -602,7 +602,7 @@ var packageAndInstall = function(conn, stageDir, hwInfo, callback) {
             if(settings.ipkOnly || argv.ipkOnly) {
                 return callback(null);
             }
-            
+
             installIpk(conn, ipkPath, callback);
         });
     });
@@ -663,7 +663,7 @@ var configureNode = function(ip, port, password, callback) {
             });
         });
         return;
-    } 
+    }
 
     console.log("Connecting to node at " + ip + " using ssh on port " + port);
     var conn = new ssh2();
@@ -692,7 +692,7 @@ var configureNode = function(ip, port, password, callback) {
 if(argv.offline) {
     var uuid = require('node-uuid');
     var offlineData = require('./' + argv.offline);
-    
+
     if (!offlineData.hasOwnProperty('mesh_subnet_ipv4')) {
 	      offlineData['mesh_subnet_ipv4'] = offlineData['mesh_addr_ipv4']
 	          .split('.')
@@ -702,10 +702,10 @@ if(argv.offline) {
 	      offlineData['mesh_subnet_ipv4_mask'] = '255.255.255.0';
 	      offlineData['mesh_subnet_ipv4_bitmask'] = '24';
     }
-    
+
     if (!offlineData.hasOwnProperty('id'))
 	      offlineData['id'] = uuid.v4();
-    
+
     u.userConfig = offlineData;
 }
 
@@ -723,7 +723,7 @@ function configure() {
             console.error("Error: " + err);
             return;
         }
-        
+
         var ip = argv.ip || settings.ip || '192.168.1.1';
         var port = argv.port || settings.port || 22;
         var password = argv.password || settings.rootPassword || 'meshtheplanet';
@@ -734,7 +734,7 @@ function configure() {
                 return;
             }
             console.log("Completed.");
-        });    
+        });
     });
 }
 
