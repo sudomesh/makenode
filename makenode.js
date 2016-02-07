@@ -5,7 +5,7 @@ var exec = require('child_process').exec;
 var util = require('util');
 var fs = require('fs.extra');
 var extend = require('node.extend');
-var cpr = require('cpr');
+var tar = require("tar-fs");
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
@@ -87,8 +87,9 @@ var copyTemplates = function(path, callback) {
         fs.mkdirp(settings.templateStageDir, function(err) {
             if(err) return callback(err);
 
-            console.log("adding templates from: " + path);
-            cpr(path, settings.templateStageDir, callback);
+            var pack = tar.pack(path);
+            var unpack = tar.extract(settings.templateStageDir);
+            pump(pack, unpack, callback);
         });
     });
 }
