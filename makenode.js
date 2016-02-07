@@ -3,9 +3,9 @@
 var path = require('path');
 var exec = require('child_process').exec;
 var util = require('util');
-var fs = require('fs.extra');
+var fs = require('fs-extra');
+var walk = require('walk');
 var extend = require('node.extend');
-var cpr = require('cpr');
 var async = require('async');
 var argv = require('optimist').argv;
 var ssh2 = require('ssh2');
@@ -88,7 +88,7 @@ var copyTemplates = function(path, callback) {
             if(err) return callback(err);
 
             console.log("adding templates from: " + path);
-            cpr(path, settings.templateStageDir, callback);
+            fs.copy(path, settings.templateStageDir, callback);
         });
     });
 }
@@ -251,7 +251,7 @@ var compileTemplate = function(config, fromTemplate, toFile, callback) {
 // compile templates using config values
 var compileTemplates = function(config, stageDir, callback) {
 
-    var walker = fs.walk(settings.templateStageDir);
+    var walker = walk.walk(settings.templateStageDir);
 
     walker.on('node', function (root, stats, next) {
         var filepath = path.join(root, stats.name);
@@ -557,9 +557,9 @@ var detectAndStage = function(conn, callback) {
 
         if (settings.cleanStaging) {
             console.log('cleaning ' + stageDir);
-            fs.rmrfSync(path.join(stageDir, 'files'));
+            fs.removeSync(path.join(stageDir, 'files'));
             console.log('cleaning ' + templateStageDir);
-            fs.rmrfSync(path.join(templateStageDir, 'files'));
+            fs.removeSync(path.join(templateStageDir, 'files'));
         }
 
         stage(stageDir, hwInfo, function(err, stageDir) {
