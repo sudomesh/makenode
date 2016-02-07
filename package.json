@@ -36,7 +36,7 @@
     "underscore": "~1.6.0",
     "walk": "^2.3.9"
   },
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/sudomesh/makenode/issues"
   },
