@@ -14,7 +14,9 @@ System dependencies
 
 ```
 sudo apt-get install dropbear
-OR
+```
+OR for OSX (w/ brew)
+```
 brew install dropbear
 ```
 
@@ -22,9 +24,23 @@ brew install dropbear
 
 ```
 sudo apt-get install fakeroot
-OR
+```
+OR for OSX (w/ brew)
+```
 brew install fakeroot
 ```
+
+* gcc
+
+```
+sudo apt-get install build-essential
+```
+OR for OSX
+```
+xcode-select --install
+```
+(I think?)
+
 
 Install node.js packages:
 
