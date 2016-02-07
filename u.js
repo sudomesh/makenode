@@ -1,5 +1,5 @@
 
-var fs = require('fs.extra');
+var fs = require('fs-extra');
 var path = require('path');
 var readline = require('readline');
 var request = require('request');
