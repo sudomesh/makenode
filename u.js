@@ -162,7 +162,8 @@ module.exports = u = {
                 data: JSON.stringify({
                     type: 'node'
                 })
-            }
+            },
+	    strictSSL: false
         }, function(err, resp, body) {
             if(err) return callback(err);
             if(!body) return callback("No data returned from server");
@@ -191,7 +192,8 @@ module.exports = u = {
             }, 
             form: {
                 data: JSON.stringify(node)
-            }
+            },
+	    strictSSL: false
         }, function(err, resp, body) {
             if(err) return callback(err);
             if(!body) return callback("No data returned from server");
