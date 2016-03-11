@@ -81,6 +81,10 @@ start() {
 
     ### FORWARDING ###
 
+    # Don't forward any traffic from mesh to upstream lan
+    iptables -A FORWARD -s $MESHNET -d $UPSTREAMLAN1 -j DROP
+    iptables -A FORWARD -s $MESHNET -d $UPSTREAMLAN2 -j DROP
+
     # Allow traffic from mesh interfaces as long as it's not headed for privnet
     iptables -A FORWARD -i $MESH2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $MESH5 -s $MESHNET ! -d $PRIVNET -j ACCEPT

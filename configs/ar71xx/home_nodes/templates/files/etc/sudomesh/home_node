@@ -13,6 +13,9 @@ LANNET=<%= open_subnet_ipv4 %>/<%= open_subnet_ipv4_bitmask %>
 MESHNET=<%= mesh_subnet_ipv4 %>/<%= mesh_subnet_ipv4_bitmask %>
 PRIVNET=172.30.0.0/24
 
+UPSTREAMLAN1=192.168.0.0/16
+UPSTREAMLAN2=10.0.0.0/8
+
 LOCALNET1=172.22.0.0/24
 
 NODEIP=<%= mesh_addr_ipv4 %>
