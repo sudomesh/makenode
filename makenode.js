@@ -19,6 +19,8 @@ var settings = require('./settings.js');
 
 sslRootCAs.inject(); // inject additional root CAs that node does not include
 sslRootCAs.addFile(path.join(__dirname, 'certs', 'sub.class1.server.startcom.ca.pem'));
+sslRootCAs.addFile(path.join(__dirname, 'certs', 'letsencrypt_isrg_root_x1.pem'));
+
 
 var debug = function(str) {
     if(argv.debug) {
