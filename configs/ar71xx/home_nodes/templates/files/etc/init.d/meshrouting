@@ -46,6 +46,9 @@ start() {
     iptables -A INPUT -m state --state ESTABLISHED,RELATED -d $LOCALNET1 -s $MESHNET -j ACCEPT
     iptables -A INPUT -s $MESHNET -d $LOCALNET1 -j DROP
 
+    # debug connections between home and extender nodes
+    iptables -A INPUT -s 172.22.0.0/24 -d 172.22.0.0/24 -j ACCEPT
+
     # accept everything local
     iptables -A INPUT -i lo -j ACCEPT
 
