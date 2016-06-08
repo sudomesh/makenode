@@ -3,6 +3,7 @@
 172.30.0.1              privatenode.sudomesh.org
 <%= mesh_addr_ipv4 %>   <%= host_name %>.sudomesh.org
 <%= mesh_addr_ipv4 %>   my.sudomesh.org
+172.30.0.1              admin.sudomesh.org
 
 
 # ::1     ip6-localhost ip6-loopback
