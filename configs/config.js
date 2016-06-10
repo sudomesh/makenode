@@ -40,8 +40,8 @@ module.exports = function(u, hwInfo, callback) {
         ssh_authorized_keys: u.readFile("authorized_keys"),
         tx_power: u.askUser("Enter wifi transmit power in dBm"),
 
-        relay_node_inet_ipv4_addr: '104.236.181.226',
-        exit_node_mesh_ipv4_addr: '100.64.0.1',
+        relay_node_inet_ipv4_addr: '45.34.140.42',
+        exit_node_mesh_ipv4_addr: '100.64.0.42',
         log_ip: '100.64.0.10',
 
         operator: {
