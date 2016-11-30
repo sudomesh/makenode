@@ -182,7 +182,8 @@ module.exports = u = {
         });
     },
 
-    updateNodeInDB: function(node, callback) {
+    updateNodeInDB: function(node, callback, retry) {
+        retry = retry || 0;
         if(!node.id) return callback("cannot update node in DB without node ID");
         request.put(settings.nodeDB.url + '/nodes/' + node.id, {
             auth: {
@@ -193,7 +194,14 @@ module.exports = u = {
                 data: JSON.stringify(node)
             }
         }, function(err, resp, body) {
-            if(err) return callback(err);
+            if(err) {
+              if(retry >= 2) {
+                callback(err);
+              } else {
+                updateNodeInDB(node, callback, retry+1);
+              }
+              return;
+            }
             if(!body) return callback("No data returned from server");
             try {
                 var obj = JSON.parse(body);
