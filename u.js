@@ -195,10 +195,12 @@ module.exports = u = {
             }
         }, function(err, resp, body) {
             if(err) {
-              if(retry >= 2) {
+              if(retry >= 20) {
                 callback(err);
               } else {
-                updateNodeInDB(node, callback, retry+1);
+                setTimeout(function() {
+                  updateNodeInDB(node, callback, retry+1);
+                }, 1000);
               }
               return;
             }
