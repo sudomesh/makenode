@@ -41,7 +41,8 @@ var usage = function() {
     console.error("  --detectOnly: Report hardware detection results and exit.")
     console.error("  --detectOnlyJSON <file>: Write hardware detection results in JSON format to file and exit.")
     console.error("  --hwInfo <file>: Read hardware info results from file instead of detecting. Implies --ipkOnly")
-    console.error("  --offline (<file>): Prompt user for the parameters usually provided by the meshnode database, or read from file.")
+    console.error("  --offline (<file>): Read IPs and other config from file instead of assigning from meshnode-database or asking user.")
+    console.error("  --reallyOffline (<file>): Don't event save node info in meshnode database.")
     console.error("  --ipkOnly: Generate .ipk file but don't automatically upload or install to node.")
     console.error('');
     console.error("Defaults can be overwritten in the settings.js file.");
@@ -221,6 +222,9 @@ var resolveAsyncParameters = function(config, callback) {
     }, function(err) {
         if(err) return callback(err);
 
+        if(argv.reallyOffline) {
+            return callback(null, config);
+        }
         u.updateNodeInDB(config, function(err, msg) {
             if(err) return callback("Error updating node in remote node database: " + err);
             callback(null, config);
