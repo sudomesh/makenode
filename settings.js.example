@@ -17,7 +17,7 @@ module.exports = {
     // settings for connection to the meshnode-database
     // https://github.com/sudomesh/meshnode-database
     nodeDB: {
-        url: 'https://secrets.sudomesh.org',
+        url: 'https://secrets.peoplesopen.net',
         username: 'deployer',
         password: 'praisebob'
     },
