@@ -199,7 +199,7 @@ module.exports = u = {
                 callback(err);
               } else {
                 setTimeout(function() {
-                  updateNodeInDB(node, callback, retry+1);
+                  u.updateNodeInDB(node, callback, retry+1);
                 }, 1000);
               }
               return;
