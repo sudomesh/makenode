@@ -11,9 +11,7 @@ module.exports = function(u, hwInfo, callback) {
   var conf = {
       macAddr: u.macAddr(hwInfo),
       streams_2g: 2,
-      streams_5g: 2,
-      private_wifi_ssid: u.askUser("Enter desired private wifi SSID"),
-      private_wifi_key: u.askUser("Enter desired private wifi password")
+      streams_5g: 2
   };
 
   if(hwInfo.model === 'WD My Net N750') {

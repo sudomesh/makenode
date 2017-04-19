@@ -1,9 +1,8 @@
 
 127.0.0.1               localhost
-172.30.0.1              privatenode.sudomesh.org
-<%= mesh_addr_ipv4 %>   <%= host_name %>.sudomesh.org
-<%= mesh_addr_ipv4 %>   my.sudomesh.org
-172.30.0.1              admin.sudomesh.org
+<%= mesh_addr_ipv4 %>   <%= host_name %>.peoplesopen.net
+<%= mesh_addr_ipv4 %>   my.peoplesopen.net
+172.30.0.1              admin.peoplesopen.net
 
 
 # ::1     ip6-localhost ip6-loopback
