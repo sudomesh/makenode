@@ -88,6 +88,16 @@ start() {
     iptables -A FORWARD -s $MESHNET -d $UPSTREAMLAN1 -j DROP
     iptables -A FORWARD -s $MESHNET -d $UPSTREAMLAN2 -j DROP
 
+    # no mesh to internet forward (only through tunnel)
+    iptables -A FORWARD -i $MESH2 -o $WAN -j DROP
+    iptables -A FORWARD -i $MESH5 -o $WAN -j DROP
+    iptables -A FORWARD -i $TUN -o $WAN -j DROP
+    iptables -A FORWARD -i $OPEN -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT1 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT2 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT3 -o $WAN -j DROP
+    iptables -A FORWARD -i $EXT4 -o $WAN -j DROP
+    
     # Allow traffic from mesh interfaces as long as it's not headed for privnet
     iptables -A FORWARD -i $MESH2 -s $MESHNET ! -d $PRIVNET -j ACCEPT
     iptables -A FORWARD -i $MESH5 -s $MESHNET ! -d $PRIVNET -j ACCEPT
@@ -108,17 +118,6 @@ start() {
     # No traffic from TUN to PRIV or from PRIV to TUN
     iptables -A FORWARD -i $TUN -o $PRIV -j DROP
     iptables -A FORWARD -i $PRIV -o $TUN -j DROP
-
-    # no mesh to internet forward (only through tunnel)
-    iptables -A FORWARD -i $MESH2 -o $WAN -j DROP
-    iptables -A FORWARD -i $MESH5 -o $WAN -j DROP
-    iptables -A FORWARD -i $TUN -o $WAN -j DROP
-    iptables -A FORWARD -i $OPEN -o $WAN -j DROP
-    iptables -A FORWARD -i $EXT1 -o $WAN -j DROP
-    iptables -A FORWARD -i $EXT2 -o $WAN -j DROP
-    iptables -A FORWARD -i $EXT3 -o $WAN -j DROP
-    iptables -A FORWARD -i $EXT4 -o $WAN -j DROP
-
 
     iptables -t mangle -A FORWARD -o $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
     iptables -t mangle -A FORWARD -i $TUN -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
