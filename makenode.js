@@ -657,7 +657,12 @@ var installIpk = function(conn, ipkPath, callback) {
 
 };
 
-var configureNode = function(ip, port, password, callback) {
+/**
+ * SSH to a host and configure it to be a sudomesh node
+ * @param {String|undefined} password - password to SSH with
+ * @param {String|undefined} privateKey - ssh private key as a string (e.g. contents of ~/.ssh/id_rsa.pub)
+ */
+var configureNode = function(ip, port, password, privateKey, callback) {
 
     if(argv.ipkOnly && argv.hwInfo) {
         console.log("Not connecting to device at all since both --ipkOnly and --hwInfo specified");
@@ -691,7 +696,8 @@ var configureNode = function(ip, port, password, callback) {
             host: ip,
             port: port,
             username: 'root',
-            password: password
+            password: password,
+            privateKey: privateKey
         });
 };
 
@@ -732,9 +738,9 @@ function configure() {
 
         var ip = argv.ip || settings.ip || '192.168.1.1';
         var port = argv.port || settings.port || 22;
-        var password = argv.password || settings.rootPassword || 'meshtheplanet';
-
-        configureNode(ip, port, password, function(err) {
+        var password = argv.password || settings.rootPassword;
+        var privateKey = settings.rootPrivateKey
+        configureNode(ip, port, password, privateKey, function(err) {
             if(err) {
                 console.error("Error: " + err);
                 return;
