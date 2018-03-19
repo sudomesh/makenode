@@ -1,4 +1,6 @@
 config broker 'main'
+       list address '64.71.176.94:8942'
+       list address '64.71.176.94:8943'
        list address '45.34.140.42:8942'
        list address '45.34.140.42:8943'
        list address '104.236.181.226:8942'

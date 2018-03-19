@@ -8,7 +8,7 @@
     :                      :        :   :/                        :   :/ 
                                         :                             : 
  -------------------------------------------------------------------------
- sudo mesh v0.2.2 (fledgling)
+ sudo mesh v0.2.3 (fledgling)
                               based on <%= openwrtVersionString %>
  -------------------------------------------------------------------------
  “When your rage is choking you, it is best to say nothing.” 
