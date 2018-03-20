@@ -80,22 +80,8 @@ module.exports = function(u, hwInfo, callback) {
         permissions: {
             '/etc/dropbear': '0700',
             '/etc/dropbear/*': '0600'
-        },
+        }
 
-        // captive portal domains
-        captivePortalDomains: [
-            'www.apple.com',
-            'captive.apple.com',
-            'www.ibook.info',
-            'www.itools.info',
-            'www.airport.us',
-            'www.thinkdifferent.us',
-            'www.appleiphonecell.com',
-            'clients3.google.com',
-            'connectivitycheck.android.com',
-            'www.msftncsi.com',
-            'msftncsi.com'
-        ]
     };
 
     if (!u.hasOwnProperty('userConfig')) {
