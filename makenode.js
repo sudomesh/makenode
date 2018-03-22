@@ -2,6 +2,7 @@
 
 var path = require('path');
 var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
 var util = require('util');
 var fs = require('fs-extra');
 var walk = require('walk');
@@ -44,6 +45,7 @@ var usage = function() {
     console.error("  --offline (<file>): Read IPs and other config from file instead of assigning from meshnode-database or asking user.")
     console.error("  --reallyOffline (<file>): Don't event save node info in meshnode database.")
     console.error("  --ipkOnly: Generate .ipk file but don't automatically upload or install to node.")
+    console.error("  --forceVersion: By default, makenode will refuse to run unless you are on the release branch. This option overrides that behavior.")
     console.error('');
     console.error("Defaults can be overwritten in the settings.js file.");
     console.error('');
@@ -755,6 +757,18 @@ if(argv.firmware) {
     if(argv.hwInfo) {
         console.log("--hwInfo specified so assuming --ipkOnly");
         argv.ipkOnly = true;
+    }
+
+    var currentBranch = function() {
+        return execSync('git symbolic-ref --short HEAD').toString().trim();
+    }
+    if(currentBranch() !== 'stable' && !argv.forceVersion) {
+        console.error(
+            "You are not currently on the stable branch of makenode. Run `git " +
+            "checkout stable` and try again, or pass the --forceVersion flag if " +
+            "you know what you are doing."
+        )
+        process.exit(0);
     }
 
     configure();
