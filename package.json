@@ -26,7 +26,6 @@
     "ip": "^0.3.2",
     "ipk-builder": "sudomesh/ipk-builder",
     "netmask": "^1.0.5",
-    "node-uuid": "^1.4.1",
     "node.extend": "~1.1.0",
     "optimist": "~0.6.1",
     "password-generator": "~0.2.2",
@@ -34,6 +33,7 @@
     "ssh2": "~0.3.4",
     "ssl-root-cas": "^1.1.10",
     "underscore": "~1.6.0",
+    "uuid": "^3.2.1",
     "walk": "^2.3.9"
   },
   "license": "GPL-3.0",

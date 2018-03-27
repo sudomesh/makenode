@@ -696,7 +696,7 @@ var configureNode = function(ip, port, password, callback) {
 };
 
 if(argv.offline) {
-    var uuid = require('node-uuid');
+    var uuid = require('uuid');
     var offlineData = require('./' + argv.offline);
 
     if (!offlineData.hasOwnProperty('mesh_subnet_ipv4')) {
