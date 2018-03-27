@@ -1,11 +1,6 @@
 config system
   option hostname <%= host_name %>
   option timezone PST8PDT,M3.2.0,M11.1.0
-  <% if (typeof log_ip === 'string' && log_ip.trim() !== '') { %>
-  option log_ip <%= log_ip %>
+
   option log_size 500
   option log_file /var/log/messages
-  option log_proto udp
-  option log_port 514
-  option log_prefix <%= host_name %>
-  <% } %>
