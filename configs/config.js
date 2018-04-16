@@ -65,7 +65,8 @@ module.exports = function(u, hwInfo, callback) {
         }),
 
         relay_node_inet_ipv4_addr: '45.34.140.42',
-        exit_node_mesh_ipv4_addr: '100.64.0.42',
+        exit_node_mesh_ipv4_addr_1: '100.64.0.42',
+        exit_node_mesh_ipv4_addr_2: '100.64.0.43',
         log_ip: '100.64.0.10',
 
         operator: {
