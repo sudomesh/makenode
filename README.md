@@ -8,57 +8,44 @@ makenode combines a set of configuration file templates with information like ge
 
 # Install Dependencies
 
-System dependencies
-
-* dropbear
-
 ```
 sudo apt-get install dropbear
-```
-OR for OSX (w/ brew)
-```
-brew install dropbear
-```
-
-* fakeroot
-
-```
 sudo apt-get install fakeroot
-```
-OR for OSX (w/ brew)
-```
-brew install fakeroot
-```
-
-* gcc
-
-```
 sudo apt-get install build-essential
 ```
-OR for OSX
+You also need node.js, a good way of installing this is with nvm,
+
 ```
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.9/install.sh | bash
+nvm install node 
+```
+
+For OSX (w/ brew)
+
+```
+brew install dropbear
+brew install fakeroot
 xcode-select --install
 ```
-(I think?)
 
+# Using makenode
 
-Install node.js packages:
+First, clone the most recent stable release of makenode,
+```
+git clone https://github.com/sudomesh/makenode -b 0.0.1
+```
+
+Next, install node.js packages:
 
 ```
 npm install
 ```
 
-# Settings
-
-Copy and tweak settings file
+Copy the example settings file
 
 ```
 cp settings.js.example settings.js
 ```
-
-Add your public ssh key to `./configs/authorized_keys`
-
-# Usage
 
 ```
 Usage: ./makenode.js
@@ -77,52 +64,6 @@ Options:
 
 Defaults and other settings can be overwritten in the settings.js file.
 
-# Patching
-makenode is used to rapidly integrate updates, patches, and fixes into sudowrt firmware. However, instead of re-running makenode on every node on your network, you may find it more convenient to create patch that can be pushed remotely. Existing patches and instructions for executing them can be found in the [patches](https://github.com/sudomesh/makenode/tree/master/patches) directory. To create the most simple patch of altering a single file, use the following instructions,
-
-1. create two copies of the files you would like to patch (one before, one after), either from a test node or modified from this repo (note: it is inadvisable to use `git diff`, since changes are made to the files before they are packed by makenode)
-
-2. Delete any lines from these copies that are user/node specifc (e.g. IP address, hostname, hashed passwords)
-
-3. send the ouput of `diff -Naur` to a patchfile, for example,
-```
-diff -Naur tunneldigger_before tunneldigger_after > bug0017.patch 
-```
-
-4. edit the patch so the file path is global and the file replaces itself (assuming that is the desired behavior), for example,
-```
---- tunneldigger_before    2018-02-23 05:49:40.677861696 -0800
-+++ tunneldigger_after    2018-02-23 05:49:55.302282993 -0800
-```
-would become,
-```
---- /etc/config/tunneldigger    2018-02-23 05:49:40.677861696 -0800
-+++ /etc/config/tunneldigger    2018-02-23 05:49:55.302282993 -0800
-```
-
-5. copy the patch file to a test node that is in the "before" state.
-
-6. test the patch with dry run by sshing into your test node and running,
-```
-patch --dry-run -p1 < bug0017.patch
-```
-note: may first need to install the `patch` package as this has yet to be rolled into makenode or the sudowrt firmware. To install `patch`, run the following on your node,
-```
-opkg update
-opkg install patch
-```
-
-7. If the dry-run succeeds, attempt to run the patch with something like,
-```
-patch -p1 < bug0017.patch
-``` 
-You may see a warning about "fuzz", this is triggered when the original file does not match patch exactly. Potential side effects of this fuzz are unknown. 
-
-8. Check that the file was correctly patched.
-
-Every patch should come with clear instructions on usage and/or a shell script that automates most of the process for node whisperers.   
-
-Additionally, if patching a file that contains or modifies user/node specific information, it may be necessary to write helper scripts that discovers such information and inserts it into the patch file.
 
 # Details
 
