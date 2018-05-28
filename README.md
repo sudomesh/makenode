@@ -27,7 +27,7 @@ This will request a new IP from our meshnode database and autoconfigure the node
 
 If you have an IP address that you are 100% is available, you can skip requesting an IP and just run the following,
 ```
-ssh root@172.22.0.1 'bash -s' < '/opt/mesh/autoconf [desired_ip_address]'
+ssh root@172.22.0.1 '/opt/mesh/autoconf [desired_ip_address]'
 ```
 Enter the default root password. Then reboot the node.
 
