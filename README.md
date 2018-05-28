@@ -1,12 +1,47 @@
+NOTE: if using sudowrt-firmware v0.3.x (dispossessed), makenode is no longer necessary, but may be used in the event that you do not have access to a hardwired internet connection. 
+
+# For sudowrt-firmware v0.3.x
+Typically, you should allow your home node it configure itself via the retrieve_ip/autoconf scripts that come pre-packaged in v0.3.0 and are run on first boot. However, if you would like to manually trigger configuration, you can use 'makenode.sh'.
+
+## Install Dependencies
+```
+sudo apt update
+sudo apt install curl jq
+```
+
+## Using NEW makenode
+Connect via an ethernet cable to port 3 or 4 on a newly flashed home node.
+Set the wired settings on your computer to:
+```
+IP: 172.22.0.9
+SUBNET MASK: 255.255.255.0
+GATEWAY: 0.0.0.0
+```
+
+If you do not already have an IP address on the mesh (that is one you've used before that you know will not conflict), just run, 
+
+```
+./makenode.sh
+```
+This will request a new IP from our meshnode database and autoconfigure the node to use that IP on the mesh.
+
+If you have an IP address that you are 100% is available, you can skip requesting an IP and just run the following,
+```
+ssh root@172.22.0.1 'bash -s' < '/opt/mesh/autoconf [desired_ip_address]'
+```
+Enter the default root password. Then reboot the node.
+
+# For sudowrt-firmware v0.2.x
+
 This is a node.js command line utility for configuring new sudo mesh nodes.
 
 Early alpha status. Things may break.
 
-# About
+## About
 
 makenode combines a set of configuration file templates with information like generated SSH keys, assigned IP address ranges, private wifi pasword, etc. then bundles the resulting configuration files into an ipk package, sends the ipk to the node using scp and installs the package. makenode can also optionally flash the node using the sudomesh firmware to prepare it for configuration.
 
-# Install Dependencies
+## Install Dependencies
 
 ```
 sudo apt-get install dropbear
@@ -28,7 +63,7 @@ brew install fakeroot
 xcode-select --install
 ```
 
-# Using makenode
+## Using makenode
 
 First, clone the most recent stable release of makenode,
 ```
