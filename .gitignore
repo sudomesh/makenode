@@ -6,3 +6,5 @@ ipks/
 templateStaging/
 settings.js
 offlineConfig.json
+log.txt
+node_info.json
