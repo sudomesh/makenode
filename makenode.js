@@ -57,7 +57,7 @@ var checkDependencies = function(callback) {
             console.error('');
             console.error("  sudo apt-get install dropbear");
             console.error('');
-            callback("Dependency check failed");
+            callback(new Error("Dependency check failed"));
             return;
         }
         callback(null);
@@ -153,7 +153,7 @@ var copyAndRecurse = function(config, dir, hwInfo, callback) {
                 }
                 var subDir = path.join(dir, file);
                 fs.stat(subDir, function(err, stats) {
-                    if(err) return console.log(err);
+                    if(err) return callback(err);
                     if(!stats.isDirectory()) {
                         return callback();
                     } else {
@@ -226,7 +226,7 @@ var resolveAsyncParameters = function(config, callback) {
             return callback(null, config);
         }
         u.updateNodeInDB(config, function(err, msg) {
-            if(err) return callback("Error updating node in remote node database: " + err);
+            if(err) return callback(new Error("Error updating node in remote node database: " + err));
             callback(null, config);
         });
     });
@@ -244,7 +244,7 @@ var compileTemplate = function(config, fromTemplate, toFile, callback) {
             var template = underscore.template(data);
             var compiledData = template(config);
             fs.mkdirp(path.dirname(toFile), function(err) {
-                if(err) return callback("Could not create staging directory for compiled template");
+                if(err) return callback(new Error("Could not create staging directory for compiled template"));
                 fs.writeFile(toFile, compiledData, {
                     mode: stats.mode
                 }, callback);
@@ -346,7 +346,7 @@ var stage = function(stageDir, hwInfo, callback) {
                             console.log("permissions");
                             setPermissions(config.permissions, path.join(stageDir, 'files'), function(err) {
 
-                                callback(null);
+                                callback(err);
                             })
                         });
                     });
@@ -482,7 +482,7 @@ var remoteCommand = function(conn, cmd, callback) {
     debug("Running remote command: " + cmd);
     conn.exec(cmd, function(err, stream) {
         if(err) {
-            return callback("Error running remote command: " + err);
+            return callback(new Error("Error running remote command: " + err));
         }
         var allStdout = '';
         var allStderr = '';
@@ -517,19 +517,19 @@ var detectHardware = function(conn, callback) {
     console.log("Detecting node hardware capabilities");
     remoteCommand(conn, 'cat /proc/cpuinfo', function(err, cpuInfo, stderr) {
         if(err) {
-            return callback("Failed to detect cpu and router model: " + err);
+            return callback(new Error("Failed to detect cpu and router model: " + err));
         }
         remoteCommand(conn, 'iw phy', function(err, wifiInfo, stderr) {
             if(err) {
-                return callback("Failed to get wifi info: " + err);
+                return callback(new Error("Failed to get wifi info: " + err));
             }
             getHWInfo(conn, cpuInfo, wifiInfo, function(err, hwInfo, stderr) {
                 if(err) {
-                    return callback("Failed to detect radio capabilities: " +  err);
+                    return callback(new Error("Failed to detect radio capabilities: " +  err));
                 }
                 getOpenwrtVersion(conn, function(err, versionString) {
                     if (err) {
-                        return callback("Failed to get openwrt version string " +  err);
+                        return callback(new Error("Failed to get openwrt version string " +  err));
                     }
                     hwInfo.openwrtVersionString = versionString;
                     console.log("Version string = " + versionString);
@@ -620,7 +620,7 @@ var fakeSCP = function(conn, localPath, remotePath, callback) {
     var localStream = fs.createReadStream(localPath);
     localStream.on('error', callback);
     conn.exec('/bin/cat > '+remotePath, function(err, remoteStream) {
-        if(err) return callback("Fake SCP failed: " + err);
+        if(err) return callback(new Error("Fake SCP failed: " + err));
         localStream.on('end', function() {
             remoteStream.end();
             callback();
@@ -664,7 +664,7 @@ var configureNode = function(ip, port, password, callback) {
         detectAndStage(null, function(err, stageDir, hwInfo) {
             if(err) return callback(err);
             packageAndInstall(null, settings.stageDir, hwInfo, function(err) {
-                if(err) return callback("package and install failed: " + err);
+                if(err) return callback(new Error("package and install failed: " + err));
                 callback();
             });
         });
@@ -681,7 +681,7 @@ var configureNode = function(ip, port, password, callback) {
             detectAndStage(conn, function(err, stageDir, hwInfo) {
                 if(err) return callback(err);
                 packageAndInstall(conn, settings.stageDir, hwInfo, function(err) {
-                    if(err) return callback("package and install failed: " + err);
+                    if(err) return callback(new Error("package and install failed: " + err));
                     conn.end();
                     callback();
                 });
@@ -722,34 +722,36 @@ if(argv.help || argv.h) {
     process.exit();
 }
 
-function configure() {
-
+function configure(callback) {
     checkDependencies(function(err) {
-        if(err) {
-            console.error("Error: " + err);
-            return;
-        }
-
+        if (err) return callback(err)
         var ip = argv.ip || settings.ip || '192.168.1.1';
         var port = argv.port || settings.port || 22;
         var password = argv.password || settings.rootPassword || 'meshtheplanet';
-
         configureNode(ip, port, password, function(err) {
-            if(err) {
-                console.error("Error: " + err);
-                return;
-            }
-            console.log("Completed.");
+            if (err) return callback(err)
+            callback()
         });
     });
+}
+
+function afterConfigure(err) {
+    if (err) {
+        console.error("Error configuring", err)
+        return
+    }
+    console.log("Completed.");
 }
 
 if(argv.firmware) {
     console.error("Not yet fully implemented");
     process.exit(0);
     var flasher = new UbiFlasher();
-    flasher.flash(argv, function() {
-        configure();
+    flasher.flash(argv, function(err) {
+        if (err) {
+            return console.error("Error flashing", err)
+        }
+        configure(afterConfigure);
     });
 } else {
     if(argv.hwInfo) {
@@ -757,5 +759,5 @@ if(argv.firmware) {
         argv.ipkOnly = true;
     }
 
-    configure();
+    configure(afterConfigure);
 }
